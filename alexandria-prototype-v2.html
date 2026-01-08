@@ -1,0 +1,3258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Alexandria Dilemma</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+            background: #1a1a1a;
+            color: #e8e4d9;
+            min-height: 100vh;
+            line-height: 1.7;
+        }
+
+        .container {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 40px 24px;
+        }
+
+        .game-header {
+            text-align: center;
+            margin-bottom: 48px;
+            padding-bottom: 32px;
+            border-bottom: 1px solid #3d3d3d;
+        }
+
+        .game-title {
+            font-size: 2.2rem;
+            font-weight: normal;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: #c9a227;
+            margin-bottom: 8px;
+        }
+
+        .game-subtitle {
+            font-size: 0.95rem;
+            color: #888;
+            font-style: italic;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: #252525;
+            border-radius: 4px;
+            margin-bottom: 32px;
+            font-size: 0.85rem;
+        }
+
+        .status-item {
+            color: #888;
+        }
+
+        .status-item strong {
+            color: #c9a227;
+        }
+
+        .story-content {
+            margin-bottom: 40px;
+        }
+
+        .unit-title {
+            font-size: 1.1rem;
+            color: #c9a227;
+            margin-bottom: 24px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #3d3d3d;
+        }
+
+        .prose {
+            margin-bottom: 24px;
+        }
+
+        .prose p {
+            margin-bottom: 1.2em;
+            text-align: justify;
+        }
+
+        .prose em {
+            color: #b8a070;
+        }
+
+        .choices-container {
+            margin-top: 40px;
+            padding-top: 24px;
+            border-top: 1px solid #3d3d3d;
+        }
+
+        .choices-prompt {
+            font-size: 0.9rem;
+            color: #888;
+            margin-bottom: 16px;
+            font-style: italic;
+        }
+
+        .choice-button {
+            display: block;
+            width: 100%;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            background: #252525;
+            border: 1px solid #3d3d3d;
+            border-radius: 4px;
+            color: #e8e4d9;
+            font-family: inherit;
+            font-size: 0.95rem;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            line-height: 1.5;
+        }
+
+        .choice-button:hover {
+            background: #2d2d2d;
+            border-color: #c9a227;
+        }
+
+        .continue-button {
+            display: block;
+            width: 100%;
+            padding: 16px 20px;
+            margin-top: 24px;
+            background: #c9a227;
+            border: none;
+            border-radius: 4px;
+            color: #1a1a1a;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .continue-button:hover {
+            background: #d4b03a;
+        }
+
+        .metrics-panel {
+            background: #252525;
+            border-radius: 4px;
+            padding: 16px;
+            margin-top: 32px;
+            font-size: 0.85rem;
+        }
+
+        .metrics-title {
+            color: #c9a227;
+            margin-bottom: 12px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            color: #888;
+        }
+
+        .metric-value {
+            color: #e8e4d9;
+        }
+
+        .metric-value.active {
+            color: #c9a227;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1a1a1a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #3d3d3d;
+            border-radius: 4px;
+        }
+
+        .debug-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #252525;
+            border: 1px solid #3d3d3d;
+            border-radius: 4px;
+            padding: 8px 12px;
+            font-size: 0.75rem;
+            color: #888;
+            cursor: pointer;
+        }
+
+        .save-controls {
+            display: flex;
+            gap: 8px;
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid #3d3d3d;
+        }
+
+        .save-btn {
+            background: #252525;
+            border: 1px solid #3d3d3d;
+            border-radius: 4px;
+            padding: 8px 16px;
+            font-size: 0.8rem;
+            color: #888;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s ease;
+        }
+
+        .save-btn:hover {
+            border-color: #c9a227;
+            color: #c9a227;
+        }
+
+        .save-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .save-btn:disabled:hover {
+            border-color: #3d3d3d;
+            color: #888;
+        }
+
+        .save-notification {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2d4a2d;
+            border: 1px solid #4a7a4a;
+            border-radius: 4px;
+            padding: 8px 16px;
+            font-size: 0.8rem;
+            color: #a0d0a0;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .save-notification.show {
+            opacity: 1;
+        }
+
+        .continue-prompt {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .continue-prompt h2 {
+            color: #c9a227;
+            font-size: 1.3rem;
+            margin-bottom: 16px;
+            font-weight: normal;
+        }
+
+        .continue-prompt p {
+            color: #888;
+            margin-bottom: 24px;
+            font-size: 0.95rem;
+        }
+
+        .continue-prompt .save-info {
+            color: #666;
+            font-size: 0.85rem;
+            margin-bottom: 24px;
+        }
+
+        .continue-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .continue-buttons button {
+            padding: 14px 28px;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-continue {
+            background: #c9a227;
+            border: none;
+            color: #1a1a1a;
+            font-weight: bold;
+        }
+
+        .btn-continue:hover {
+            background: #d4b03a;
+        }
+
+        .btn-new {
+            background: transparent;
+            border: 1px solid #3d3d3d;
+            color: #888;
+        }
+
+        .btn-new:hover {
+            border-color: #888;
+            color: #e8e4d9;
+        }
+
+        .ending-label {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #3d3d3d;
+            text-align: center;
+            color: #c9a227;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="game-header">
+            <h1 class="game-title">The Alexandria Dilemma</h1>
+            <p class="game-subtitle">48 BCE — The Library of Alexandria</p>
+        </header>
+
+        <div class="status-bar">
+            <span class="status-item">Act <strong id="current-act">1</strong></span>
+            <span class="status-item" id="thread-status"></span>
+            <span class="status-item">Harbor: <strong id="harbor-status">Quiet</strong></span>
+        </div>
+
+        <main id="story-container" class="story-content"></main>
+
+        <div id="metrics-panel" class="metrics-panel hidden">
+            <div class="metrics-title">Current Position</div>
+            <div class="metric-row">
+                <span>Dispersal</span>
+                <span class="metric-value" id="metric-dispersal">0</span>
+            </div>
+            <div class="metric-row">
+                <span>Defense</span>
+                <span class="metric-value" id="metric-defense">0</span>
+            </div>
+            <div class="metric-row">
+                <span>Intel</span>
+                <span class="metric-value" id="metric-intel">0</span>
+            </div>
+            <div class="metric-row">
+                <span>Alliances</span>
+                <span class="metric-value" id="metric-alliances">None</span>
+            </div>
+        </div>
+
+        <div class="save-controls">
+            <button class="save-btn" onclick="saveGame()">Save</button>
+            <button class="save-btn" id="load-btn" onclick="loadGame()" disabled>Load</button>
+            <button class="save-btn" id="restart-btn" onclick="confirmRestart()">Restart</button>
+        </div>
+    </div>
+
+    <div class="save-notification" id="save-notification">Game saved</div>
+
+    <button class="debug-toggle" onclick="toggleMetrics()">Show Stats</button>
+
+    <script>
+// ============================================
+// GAME STATE
+// ============================================
+
+const STATE = {
+    currentUnit: "INTRO",
+    act: 1,
+    dispersal: 0,
+    defense: 0,
+    intel: 0,
+    temple: 0,
+    city: 0,
+    community: 0,
+    threadsCompleted: [],
+    threadsVisited: [],
+    threadsStarted: [],
+    harborStage: 0,
+    act1Alignment: null,
+    askedHypatia: false,
+    askedTheron: false,
+    cityDismissed: false,
+    choices: []
+};
+
+// ============================================
+// CONTENT
+// ============================================
+
+const CONTENT = {
+
+"INTRO": {
+    title: "The Alexandria Dilemma",
+    isIntro: true,
+    prose: `<p><em>You are a senior member of the Invisible College—a secret network of scholars, spies, and intellectuals dedicated to preserving knowledge across the Mediterranean world.</em></p>
+    
+<p><em>Tonight, an emergency gathering has been called in a hidden chamber beneath the Great Library of Alexandria. Political chaos is coming. The Library—the greatest repository of human knowledge ever assembled—is in mortal danger.</em></p>
+
+<p><strong>There is no right answer. There is only the choice you make, and the consequences that follow.</strong></p>`,
+    choices: [
+        { text: "Begin", next: "A1-01" }
+    ]
+},
+
+"A1-01": {
+    title: "Arrival",
+    act: 1,
+    prose: `<p>The message reached you at the third hour of night—a strip of papyrus pressed into your hand by a face you almost recognized, gone before you could speak. Three words in the College's cipher: <em>Chamber. Now. Crisis.</em></p>
+
+<p>You've received such summons before. Damascus. Pergamum. The extraction from Antioch when the governor's men were already at the gates. But something in the hand that passed the message—the tremor, or the haste—tells you this is different.</p>
+
+<p>The streets of Alexandria are never truly dark. Even now, oil lamps flicker in upper windows, and the harbor quarter hums with the work that never stops. You pass through it all like a shadow, taking the routes Theron taught you—the ones the city's officials don't watch.</p>
+
+<p>The Pharos light sweeps across the water in its slow rotation. Tonight it feels like a warning.</p>
+
+<p>The hidden entrance is where it has always been: behind a wine merchant's shop, through a courtyard, down a passage so narrow your shoulders brush both walls.</p>
+
+<p>The stairs descend into darkness. From below, you catch the murmur of voices—two, you think. One measured and low. One sharper, clipped with urgency.</p>
+
+<p>Theron and Hypatia. Both summoned. Both already here.</p>`,
+    prompt: "How do you enter?",
+    choices: [
+        { text: "Descend and enter the Chamber.", next: "A1-02" },
+        { text: "Move quickly—they've been waiting.", next: "A1-02-quick" },
+        { text: "Pause to listen before showing yourself.", next: "A1-02-listen" }
+    ]
+},
+
+"A1-02-quick": {
+    title: "The Gathering",
+    act: 1,
+    prose: `<p>You take the stairs two at a time. Whatever this is, delay won't help.</p>
+
+<p>Theron is already turning toward the sound of your footsteps when you enter. He moves the way he always moves: economical, restless, a man who counts exits even in rooms he knows.</p>
+
+<p>"Good. You're here." Something in his face shifts—not relief exactly, but recognition. One variable settled. "Hypatia's checking something. She'll be back."</p>
+
+<p>He gestures at the wooden chairs around the central table. A map of the city is spread across it.</p>
+
+<p>You've barely sat down when Hypatia arrives—footsteps on the stairs, deliberate, unhurried. A scroll case under her arm, ink staining her fingers.</p>
+
+<p>"Nikos." She acknowledges you with a nod, then turns to Theron. "You've told them?"</p>
+
+<p>"I was waiting for you."</p>
+
+<p>"Then tell us both."</p>
+
+<p>Theron looks at you, then at her. Deciding where to begin.</p>
+
+<p>"How much do you know," he says, "about what's happening in the harbor?"</p>`,
+    prompt: "What do you know?",
+    choices: [
+        { text: "\"I saw the ships. Military transports.\"", next: "A1-03" },
+        { text: "\"I've heard rumors. Nothing solid.\"", next: "A1-03" },
+        { text: "\"Assume I know nothing. Start from the beginning.\"", next: "A1-03" }
+    ]
+},
+
+"A1-02-listen": {
+    title: "The Gathering",
+    act: 1,
+    prose: `<p>You pause at the top of the stairs. Old habit—Theron taught you that one too. <em>Know what you're walking into.</em></p>
+
+<p>The voices drift up, distorted by stone but clear enough.</p>
+
+<p>"—can't just abandon three centuries of work because you're <em>nervous</em>—"</p>
+
+<p>"I'm not nervous. I'm informed. There's a difference."</p>
+
+<p>"Informed by a Roman who won't even commit his warnings to writing—"</p>
+
+<p>"Because he's afraid. And Lucius doesn't frighten easily."</p>
+
+<p>A pause. Then Hypatia's voice, quieter: "How bad?"</p>
+
+<p>"Bad enough that I've already started counting ships."</p>
+
+<p>You've heard enough. You descend.</p>
+
+<p>Theron turns at the sound of your footsteps. His eyes flick to the stairs behind you—checking, always checking—then back to your face.</p>
+
+<p>"How much of that did you hear?"</p>
+
+<p>"Enough to know this isn't a routine extraction."</p>
+
+<p>He almost smiles. Almost. "No. It isn't."</p>
+
+<p>Hypatia sets down her scroll case. "Then let's not waste time repeating ourselves. Theron—the harbor. From the beginning."</p>`,
+    prompt: "You listen.",
+    choices: [
+        { text: "Continue", next: "A1-03" }
+    ]
+},
+
+"A1-02": {
+    title: "The Gathering",
+    act: 1,
+    prose: `<p>The Chamber is smaller than you remember—or perhaps it only feels that way with Theron pacing its length. He moves the way he always moves: economical, restless, a man who counts exits even in rooms he knows.</p>
+
+<p>He stops when he sees you. "Good. Sit, if you want. Stand if you'd rather." He gestures at the wooden chairs around the central table. A map of the city is spread across it.</p>
+
+<p>Hypatia arrives moments later, a scroll case under her arm, ink staining her fingers.</p>
+
+<p>"Nikos." She acknowledges you with a nod, then turns to Theron. "You've told them?"</p>
+
+<p>"I was waiting for you."</p>
+
+<p>"Then tell us both."</p>
+
+<p>Theron looks at you, then at her. Deciding where to begin.</p>
+
+<p>"How much do you know," he says, "about what's happening in the harbor?"</p>`,
+    prompt: "What do you know?",
+    choices: [
+        { text: "\"I saw the ships. Military transports.\"", next: "A1-03" },
+        { text: "\"I've heard rumors. Nothing solid.\"", next: "A1-03" },
+        { text: "\"Assume I know nothing. Start from the beginning.\"", next: "A1-03" }
+    ]
+},
+
+"A1-03": {
+    title: "Theron's Intelligence",
+    act: 1,
+    prose: `<p>Theron moves to the map. His finger finds the harbor without looking.</p>
+
+<p>"Three days ago, a Roman transport arrived from Cyprus. Routine, supposedly. Except it didn't leave." He traces a line across the eastern basin. "Two more came yesterday. Military configuration. Room for a lot of men."</p>
+
+<p>He produces a folded paper. "This morning, Lucius got word to me. He's nervous—more nervous than I've seen him. The message was short: <em>'Prepare for instability. Timeframe uncertain. Cannot say more.'</em>"</p>
+
+<p>"Lucius is careful," he continues. "If he says prepare, I prepare. If he says he cannot say more, it means he's afraid to commit it to writing."</p>
+
+<p>Hypatia speaks: "What does 'instability' mean? A coup? Riots?"</p>
+
+<p>"I don't know." The admission costs him. "The threat isn't a plan, it's a possibility. When soldiers get orders in a city that isn't theirs—fire, confusion, collateral damage."</p>
+
+<p>He looks at you both. "The harbor. Watch the harbor. When the merchant ships start running—that's when we're out of time."</p>`,
+    prompt: "How do you respond?",
+    choices: [
+        { text: "\"I need numbers. Ships, men, timeframe.\"", next: "A1-03-numbers" },
+        { text: "\"You've already started planning. Tell us.\"", next: "A1-03-plan" },
+        { text: "Wait for Hypatia to respond.", next: "A1-04" }
+    ]
+},
+
+"A1-03-numbers": {
+    title: "The Count",
+    act: 1,
+    prose: `<p>Theron nods—a sharp, approving motion. You speak his language.</p>
+
+<p>"Three transports confirmed. Capacity for perhaps two thousand men total. The garrison here is another eight hundred. Ptolemy's forces—harder to count. Could be ten thousand if he calls them in."</p>
+
+<p>He taps the map. "Timeline: three days, maybe four, before whatever's coming arrives. Maybe less if something triggers it early."</p>
+
+<p>"Ships out: eleven merchant vessels that could carry cargo. Six loading to leave within the week. The others depend on how nervous the captains get."</p>
+
+<p>Hypatia has been listening. Now she speaks.</p>`,
+    choices: null,
+    next: "A1-04"
+},
+
+"A1-03-plan": {
+    title: "Theron's Plan",
+    act: 1,
+    prose: `<p>Theron's jaw tightens. "I've been thinking about it since the message came. Yes."</p>
+
+<p>"If we move fast—tonight, tomorrow—we can activate the network. Every copyist we trust, working in shifts. Prioritize the unique copies, the original manuscripts, the proofs that haven't been copied elsewhere."</p>
+
+<p>He traces routes on the map. "Ships to Pergamum, Athens, Cyprus. Scatter everything we can before whatever's coming arrives."</p>
+
+<p>"That's your plan," Hypatia says quietly. "Evacuation. Dispersal. Assume the worst and run."</p>
+
+<p>"Assume the worst and <em>prepare</em>," Theron corrects. "If I'm wrong, we've made extra copies. If I'm right—"</p>
+
+<p>"If you're right, we've abandoned three centuries of work because of rumors."</p>
+
+<p>The argument is about to begin. But Hypatia continues before it can.</p>`,
+    choices: null,
+    next: "A1-04"
+},
+
+"A1-04": {
+    title: "Hypatia's Response",
+    act: 1,
+    prose: `<p>Hypatia releases a breath. She moves to the map, standing across from Theron.</p>
+
+<p>"Ships in the harbor. A nervous Roman. Rumors." She looks up. "Theron, I don't doubt your sources. But we've seen this before. The succession crisis. The riots under Ptolemy Auletes. The Library has stood through all of it. Three hundred years."</p>
+
+<p>She taps the Bruchion. "We're woven into this city. The courts use our legal scholars. The temples use our astronomers. The physicians trained here treat families in every quarter."</p>
+
+<p>"That's not armor," Theron says.</p>
+
+<p>"No. It's relationship. When the mob came during the succession crisis, scholars standing in the doorway stopped them. Teachers. The rioters saw their own tutors and turned away."</p>
+
+<p>"I'm not saying we do nothing," she continues. "I'm saying we don't panic. We don't scatter the collection to a hundred cities. We assess. We prepare. We use the relationships we've built."</p>
+
+<p>She turns to you. "Theron sees ships and thinks evacuation. I see ships and think: who do we know? Who owes us? Who might protect us?"</p>
+
+<p>Theron hasn't moved. His eyes are patient, waiting.</p>
+
+<p>"You're not wrong," he says quietly. "But you're not right either."</p>`,
+    prompt: "Do you weigh in?",
+    choices: [
+        { text: "\"If Hypatia's relationships fail, what then?\"", next: "A1-04-challenge-hypatia", effects: { askedHypatia: true } },
+        { text: "\"If Theron's evacuation succeeds, what do we lose?\"", next: "A1-04-challenge-theron", effects: { askedTheron: true } },
+        { text: "Let them continue. This has been building for years.", next: "A1-05" }
+    ]
+},
+
+"A1-04-challenge-hypatia": {
+    title: "The Challenge",
+    act: 1,
+    prose: `<p>Hypatia turns to face you fully. She doesn't flinch.</p>
+
+<p>"Then we lose. Everything." She says it plainly, without drama. "The building burns. The collection becomes ash. Three centuries of accumulated knowledge—gone."</p>
+
+<p>"But I've seen the alternative," she continues. "Scattered fragments in a dozen cities, separated from each other, separated from the scholars who understand them. Copies without context. That's not preservation—that's a slow death instead of a fast one."</p>
+
+<p>Theron stirs. "A slow death leaves time to—"</p>
+
+<p>"To what? To hope someone reassembles what we've scattered? To trust that the conversation across centuries will somehow continue when the speakers are a thousand miles apart?"</p>
+
+<p>She looks back at you. "You asked what happens if I'm wrong. I die in the Library, probably. I've made my peace with that." Her voice is steady. "What happens if Theron's wrong? We survive into a world where the thing we were trying to save no longer exists in any meaningful form. And we have to live with that."</p>
+
+<p>Theron is quiet. This is old ground between them, but your question has sharpened it.</p>`,
+    prompt: "Do you have another question?",
+    dynamic: true,
+    getProseAndChoices: function() {
+        let choices = [];
+        if (!STATE.askedTheron) {
+            choices.push({ text: "\"And if Theron's evacuation succeeds, what do we lose?\"", next: "A1-04-challenge-theron", effects: { askedTheron: true } });
+        }
+        choices.push({ text: "Let them continue.", next: "A1-05" });
+        return { choices: choices };
+    }
+},
+
+"A1-04-challenge-theron": {
+    title: "The Challenge",
+    act: 1,
+    prose: `<p>Theron stops pacing. He looks at you—really looks, as if recalculating something.</p>
+
+<p>"Everything that makes it more than a warehouse," he says finally. "The organization. The cross-references. The scholars who know which texts speak to which other texts."</p>
+
+<p>He moves to the map, touches the Library's location. "A scroll of Babylonian star charts in Damascus is cargo. The same scroll here, next to the Greek astronomical observations it corresponds to, next to the Egyptian calendar texts that show how both traditions evolved—that's knowledge. Scatter them, and you have three pieces of cargo in three cities. The conversation between them is over."</p>
+
+<p>"But the conversation can start again," Hypatia says quietly. "If the scholars survive. If the copies survive. It can be rebuilt."</p>
+
+<p>"Can it?" Theron's voice is flat. "How long did it take to build what we have? Three centuries. How many of those connections exist only in the minds of people who will die when this place burns?"</p>
+
+<p>He looks at you. "You asked what we lose. We lose the whole. We save the pieces and hope—<em>hope</em>—that someone, someday, figures out how to put them back together." He pauses. "I'm not saying it's a good answer. I'm saying it might be the only answer."</p>
+
+<p>Hypatia is watching him now, something shifting in her expression.</p>`,
+    prompt: "Do you have another question?",
+    dynamic: true,
+    getProseAndChoices: function() {
+        let choices = [];
+        if (!STATE.askedHypatia) {
+            choices.push({ text: "\"And if Hypatia's relationships fail, what then?\"", next: "A1-04-challenge-hypatia", effects: { askedHypatia: true } });
+        }
+        choices.push({ text: "Let them continue.", next: "A1-05" });
+        return { choices: choices };
+    }
+},
+
+"A1-05": {
+    title: "The Argument",
+    act: 1,
+    prose: `<p>Theron moves first. "You've granted that dispersal has value. Copies in Pergamum, Damascus, Athens. If the building burns, the texts survive."</p>
+
+<p>"I have. I've always understood the logic."</p>
+
+<p>"Then we agree."</p>
+
+<p>"We don't." She steps closer. "You're describing a library as if it were a warehouse."</p>
+
+<p>"The Babylonian star charts—you want to send them to Damascus with Demetrios who can read them. Fine. What about the Greek observations they correspond to? Those go to Pergamum. And the Egyptian calendar texts—Memphis, I assume."</p>
+
+<p>"In fifty years, there will be a scholar in Damascus who wants to understand how Babylonian observations influenced Greek models. She'll have the Babylonian texts. Maybe she can get the Greek ones from Pergamum. But she won't have the Egyptian material." Hypatia's hand moves across the map. "The conversation those texts were having—you can only see it when they're side by side. Separate them, and that conversation is over."</p>
+
+<p>Theron is quiet. "And if the building burns with all three inside?"</p>
+
+<p>"Yes. That's the risk."</p>
+
+<p>"Then why—"</p>
+
+<p>"Because your way <em>guarantees</em> the loss. Mine only <em>risks</em> it."</p>
+
+<p>Silence. They've reached the place they always reach. Neither will move the other. Not with words alone.</p>`,
+    choices: null,
+    next: "A1-06"
+},
+
+"A1-06": {
+    title: "Your Position",
+    act: 1,
+    prose: `<p>They're both watching you now. The argument has run its course—this iteration of it. What remains is what you bring.</p>
+
+<p>Theron wants to move. Every hour spent debating is an hour not spent getting things out.</p>
+
+<p>Hypatia wants to hold. Scattering is its own kind of destruction, slower but just as final.</p>
+
+<p>And you—</p>`,
+    prompt: "Where do you stand?",
+    choices: [
+        { 
+            text: "\"Seventy thousand in a hundred cities. If the worst happens, something survives.\"", 
+            next: "A1-06-side-theron",
+            effects: { dispersal: 1, act1Alignment: "theron" }
+        },
+        { 
+            text: "\"Fragments without context are just fragments. Scattering loses what makes it matter.\"", 
+            next: "A1-06-side-hypatia",
+            effects: { defense: 1, act1Alignment: "hypatia" }
+        },
+        { 
+            text: "\"You've been having this argument for years. What would change your mind?\"", 
+            next: "A1-06-challenge-both",
+            effects: { act1Alignment: "both" }
+        },
+        { 
+            text: "\"I don't know yet. I need to see more.\"", 
+            next: "A1-07",
+            effects: { act1Alignment: "neither" }
+        }
+    ]
+},
+
+"A1-06-side-theron": {
+    title: "Your Position",
+    act: 1,
+    prose: `<p>Theron's chin lifts slightly. Not triumph—acknowledgment. Someone else sees what he sees.</p>
+
+<p>"Seventy thousand," he repeats. "Maybe more, if we're fast. Seeds. The soil they land in won't be as rich as this one, but seeds can wait for better seasons."</p>
+
+<p>Hypatia is very still. When she speaks, her voice is careful.</p>
+
+<p>"I understand the mathematics. I do." She looks at you directly. "But you should know what you're choosing. Those seventy thousand will be copies—hasty copies, some of them. Without the scholars who understand them. Without each other." She pauses. "You're not saving the Library. You're saving cargo and hoping someone else builds a new library around it."</p>
+
+<p>"Yes," Theron says quietly. "That's exactly what I'm proposing."</p>
+
+<p>The silence stretches. Hypatia doesn't argue further—but she doesn't agree, either.</p>`,
+    choices: null,
+    next: "A1-07"
+},
+
+"A1-06-side-hypatia": {
+    title: "Your Position",
+    act: 1,
+    prose: `<p>Something in Hypatia's shoulders eases—just slightly. She's not alone in this.</p>
+
+<p>"Context," she says. "That's the word. A text without its context is a voice without a conversation. It can still speak, but no one knows what it's answering."</p>
+
+<p>Theron's expression doesn't change, but you can see him recalculating. He looks at you for a long moment.</p>
+
+<p>"I've buried colleagues who believed what you believe," he says. Not angry—tired. "Good people. Brave people. They stood their ground and the ground burned beneath them."</p>
+
+<p>"I know," Hypatia says quietly.</p>
+
+<p>"Do you? Do you really?" He turns away, toward the map. "Because when the fire comes, it doesn't care about context. It doesn't care about conversations across centuries. It just burns."</p>
+
+<p>He doesn't say anything else. But he doesn't leave, either.</p>`,
+    choices: null,
+    next: "A1-07"
+},
+
+"A1-06-challenge-both": {
+    title: "Your Position",
+    act: 1,
+    prose: `<p>They both stop. The question hangs in the air.</p>
+
+<p>Theron answers first. "Evidence. Show me that standing and fighting has ever saved a library. Show me one time when the scholars who stayed behind didn't end up ash alongside the scrolls they were protecting."</p>
+
+<p>"Show me that scattering has ever preserved a tradition," Hypatia counters. "Not just texts—a living tradition. Scrolls that people read and argue about and build on. Show me the scattered fragments that became something more than curiosities in foreign collections."</p>
+
+<p>They're both looking at you now. Waiting.</p>
+
+<p>"You're asking the wrong person," you say. "I don't have those answers. Neither do you."</p>
+
+<p>"No," Theron admits.</p>
+
+<p>"No," Hypatia agrees.</p>
+
+<p>For a moment, there's something almost like peace between them. The shared acknowledgment of uncertainty.</p>
+
+<p>"Then we find out," you say. "We gather information. We stop arguing about what might happen and learn what's actually possible."</p>`,
+    choices: null,
+    next: "A1-07"
+},
+
+"A1-07": {
+    title: "Impasse",
+    act: 1,
+    prose: `<p>The lamp has burned lower. You've been here longer than you realized.</p>
+
+<p>Theron moves to the map. "We're missing too much. The threat is real, but I don't know its shape."</p>
+
+<p>"The city itself," Hypatia adds. "There are people we've never thought to ask. The ones who built this place. The ones who see us from the outside."</p>
+
+<p>Theron nods. "The Serapeum—Khaemwaset has resources we don't. Vaults, connections. He'd want something in return, but he might deal."</p>
+
+<p>"And the network's harbor contacts. I should check what's actually possible—ships, capacity, routes."</p>
+
+<p>They're not arguing anymore. They're identifying gaps.</p>
+
+<p>Theron looks at you. "We can't both leave. Someone needs to be here. That means we need someone out there."</p>
+
+<p>Hypatia's eyes meet yours. "You know us both. You know what we're asking."</p>`,
+    choices: null,
+    next: "A1-08"
+},
+
+"A1-08": {
+    title: "Dispatch",
+    act: 1,
+    prose: `<p>Theron pulls a small leather pouch from his coat. "Here's what we need."</p>
+
+<p>He spreads the contents on the table: tokens stamped with the College's cipher, a worn scroll case, a folded map.</p>
+
+<p>"First: intelligence. We're arguing in the dark. Someone needs to find out what's actually happening—what the threat looks like, what resources exist, what options we have." He looks at you. "That someone is you. We can't both leave the Chamber, and you can move through the city faster than either of us."</p>
+
+<p>Hypatia picks up the scroll case. "Second: allies. We've been so focused on the debate between us that we've forgotten other people exist. The temple has vaults and its own networks. The people who built this place know things we don't. Even within the Library, there are scholars with their own resources." She hands you the case. "This gets you into the restricted sections. Use it."</p>
+
+<p>Theron taps the map. "Four possibilities. The harbor—my contact Nephthys works the customs house. She knows which ships are leaving and which are staying. The Serapeum—Khaemwaset, high priest. He's been positioning the temple as an alternative to the Library for years. He'll want something in return, but he has resources we don't."</p>
+
+<p>Hypatia adds: "The Library itself—there's a translator named Miriam. Hebrew and Greek. She has her own networks, her own priorities. And the city—the workers, the guilds. The people who see us from outside."</p>
+
+<p>"Find out what you can," Theron says. "Then come back here. We'll still be arguing—" a glance at Hypatia, almost a smile "—but at least we'll have something to argue about."</p>
+
+<p>"Choose where to start," Hypatia says. "You can visit more than one, but time matters. The harbor will tell us how much time we have."</p>`,
+    prompt: "Where do you go first?",
+    choices: [
+        { text: "The harbor. Find Nephthys.", next: "A2-NETWORK", effects: { threadsStarted: ["network"] } },
+        { text: "The Library. Find Miriam.", next: "A2-LIBRARY", effects: { threadsStarted: ["library"] } },
+        { text: "The Serapeum. Find Khaemwaset.", next: "A2-TEMPLE", effects: { threadsStarted: ["temple"] } },
+        { text: "The city. Find the workers.", next: "A2-CITY", effects: { threadsStarted: ["city"] } }
+    ]
+},
+
+// --- ACT 2: THREADS ---
+
+"A2-NETWORK": {
+    title: "The Harbor Contact",
+    act: 2,
+    thread: "network",
+    prose: `<p>Nephthys works the customs house second shift—a small woman with quick eyes who doesn't stop counting cargo as she talks to you.</p>
+
+<p>"The harbor is wrong," she says. "Merchant ships are leaving early, before their holds are full. Military transports are sitting, not unloading. Like they're waiting for something."</p>
+
+<p>Three ships might work for evacuation: the <em>Ibis</em>, leaving in two days for Pergamum. The <em>Crocodile</em>, whose captain would charge triple but wouldn't ask questions. A small Cypriot vessel, flexible but limited.</p>
+
+<p>"Who decides what's irreplaceable?" she asks. "That's your real problem. You can move cargo. Moving choices—that's harder."</p>
+
+<p>The military transports are the wild card. If they start unloading troops, the harbor could close within hours.</p>
+
+<p>"Watch for when they start moving. That's your signal."</p>`,
+    prompt: "What do you do?",
+    choices: [
+        { text: "Return to the Chamber with this intelligence.", next: "A3-01", effects: { threadsCompleted: ["network"], intel: 1 } },
+        { text: "Continue into the city. There's more to learn.", next: "A2-HUB", effects: { threadsCompleted: ["network"], intel: 1 } }
+    ]
+},
+
+"A2-LIBRARY": {
+    title: "The Translation Rooms",
+    act: 2,
+    thread: "library",
+    prose: `<p>You move deeper into the Library, past the grand reading rooms and the public halls. Here the corridors narrow. The light changes—fewer windows, more oil lamps. The smell of ink and papyrus grows stronger.</p>
+
+<p>This is where the real work happens. Copyists bent over desks, their pens scratching in steady rhythm. Translators with three texts spread before them, moving between languages. The industry beneath the scholarship.</p>
+
+<p>Theron mentioned a translator. "Miriam. Jewish. She has her own network—older than ours, in some ways larger. If anyone understands what we're trying to do, she does. Find her in the translation rooms. She keeps to herself."</p>
+
+<p>You ask a passing scribe. He points to a smaller chamber off the main corridor. "The Hebrew translator. She's always there."</p>`,
+    choices: [
+        { text: "Enter the chamber.", next: "A2-LIBRARY-ENCOUNTER" }
+    ]
+},
+
+"A2-LIBRARY-ENCOUNTER": {
+    title: "First Encounter",
+    act: 2,
+    thread: "library",
+    prose: `<p>The room is small—barely larger than a storage closet. Three texts spread on the desk: Greek, Hebrew, something older. A woman sits with her back to the door, pen moving between them.</p>
+
+<p>She doesn't turn when you enter. "I heard you coming. The corridor echoes."</p>
+
+<p>She sets down her pen, turns. Forty years old, perhaps. Dark eyes that assess you quickly, thoroughly. She's been underestimated before—you can see it in the way she waits to see if you'll do the same.</p>
+
+<p>"You're not a scribe. Not a scholar—not the Library kind." She tilts her head. "One of Theron's people. He mentioned you might come."</p>
+
+<p>She gestures to a stool. "Sit. Tell me what you want. I'll tell you what I think."</p>`,
+    prompt: "How do you respond?",
+    choices: [
+        { text: "\"We want to save the Library. Theron says you can help.\"", next: "A2-LIBRARY-SAVE" },
+        { text: "\"Theron says you have your own network. Your own preservation effort.\"", next: "A2-LIBRARY-NETWORK" },
+        { text: "\"I'm trying to understand what's worth saving. What matters most.\"", next: "A2-LIBRARY-WORTH" }
+    ]
+},
+
+"A2-LIBRARY-SAVE": {
+    title: "Which Library",
+    act: 2,
+    thread: "library",
+    prose: `<p>"You want to save the Library." She repeats it, turning the words over. "Which library?"</p>
+
+<p>You start to answer, but she continues.</p>
+
+<p>"This building holds half a million scrolls. Texts from Egypt, Greece, Babylon, Persia, India. My people's scriptures, translated into Greek so Greeks could read them. Aristotle's letters, Euclid's proofs, plays that haven't been performed in two hundred years."</p>
+
+<p>She picks up one of the scrolls on her desk. "Half a million. How many have you read? How many has anyone read in the last decade? The last century?"</p>
+
+<p>She sets it down. "You want to save the Library. Is that the building? The collection? The institution? Or something else—something you haven't named yet?"</p>`,
+    prompt: "How do you respond?",
+    choices: [
+        { text: "\"The knowledge. What's inside.\"", next: "A2-LIBRARY-KNOWLEDGE" },
+        { text: "\"What do you think is worth saving?\"", next: "A2-LIBRARY-HER-PRIORITIES" },
+        { text: "\"What's the difference? Why does it matter?\"", next: "A2-LIBRARY-DIFFERENCE" }
+    ]
+},
+
+"A2-LIBRARY-NETWORK": {
+    title: "Her Network",
+    act: 2,
+    thread: "library",
+    prose: `<p>Something shifts in her expression. Not suspicion—assessment. She's deciding how much to tell you.</p>
+
+<p>"I have a network. Yes." She folds her hands on the desk. "Synagogues around the Middle Sea. My brother in Antioch. My cousin in Cyrene. My teacher's daughter in Rome. We've been doing this longer than the Greeks have had letters."</p>
+
+<p>She lets that settle.</p>
+
+<p>"When the Temple fell—the first time, six hundred years ago—our scholars wrote down what had been spoken. They made a temple out of words. One that could travel. One that couldn't be burned because it lived in the people who carried it."</p>
+
+<p>She gestures at the walls around her. "Theron has his network. Hidden, clever, dispersed. I have mine. Older. Less hidden. More practiced at this particular work."</p>`,
+    prompt: "How do you respond?",
+    choices: [
+        { text: "\"You've already started. The preservation work.\"", next: "A2-LIBRARY-ALREADY-STARTED" },
+        { text: "\"What have you been preserving?\"", next: "A2-LIBRARY-HER-PRIORITIES" },
+        { text: "\"How is your network different from Theron's?\"", next: "A2-LIBRARY-MODEL" }
+    ]
+},
+
+"A2-LIBRARY-WORTH": {
+    title: "What's Worth Saving",
+    act: 2,
+    thread: "library",
+    prose: `<p>She studies you for a long moment. Then she nods—once, precisely.</p>
+
+<p>"That's a better question than most people ask." She turns back to her desk, gestures at the three texts spread before her. "Let me show you something."</p>
+
+<p>She points to each scroll in turn. "Greek. Hebrew. Aramaic. The same text—or what passes for the same text. A psalm. A prayer. Words my people have been saying for five hundred years."</p>
+
+<p>"In Hebrew, one word means 'breath' and 'spirit' and 'wind.' The same word for all three. When God breathes life into Adam, when the spirit moves over the waters, when the wind blows from the east—same word."</p>
+
+<p>She touches the Greek scroll. "In Greek, you have to choose. The translator picks one, and the others disappear."</p>
+
+<p>She looks at you. "So what's worth saving? The Greek translation that a million people can read? Or the Hebrew that holds meanings the Greek can never capture?"</p>`,
+    prompt: "How do you respond?",
+    choices: [
+        { text: "\"Both. If we can.\"", next: "A2-LIBRARY-BOTH" },
+        { text: "\"What would you choose?\"", next: "A2-LIBRARY-HER-PRIORITIES" },
+        { text: "\"Tell me more about what's lost in translation.\"", next: "A2-LIBRARY-TRANSLATION" }
+    ]
+},
+
+"A2-LIBRARY-KNOWLEDGE": {
+    title: "The Knowledge",
+    act: 2,
+    thread: "library",
+    prose: `<p>"The knowledge." She says it back to you. "What's inside."</p>
+
+<p>She stands, moves to a shelf along the wall. Pulls down a scroll, holds it up.</p>
+
+<p>"This is a commentary on a commentary on a text that no longer exists. The original was lost two centuries ago. The first commentary was lost fifty years later. This—" she taps it "—is three generations removed from the thought it's trying to preserve."</p>
+
+<p>She sets it down. "Is this knowledge? Or is it the ghost of knowledge? The echo of an echo?"</p>
+
+<p>She returns to her seat. "Your Library has half a million scrolls. How many of them does anyone teach? How many does anyone live by? A scroll that sits on a shelf, unread, untaught, unused—is that knowledge? Or just... storage?"</p>`,
+    prompt: "How do you respond?",
+    choices: [
+        { text: "\"Even storage has value. Potential. Someone might read it someday.\"", next: "A2-LIBRARY-POTENTIAL" },
+        { text: "\"What's the alternative? What survives better than scrolls?\"", next: "A2-LIBRARY-MODEL" },
+        { text: "\"What do you think is actually worth saving?\"", next: "A2-LIBRARY-HER-PRIORITIES" }
+    ]
+},
+
+"A2-LIBRARY-DIFFERENCE": {
+    title: "The Difference",
+    act: 2,
+    thread: "library",
+    prose: `<p>"The difference." She leans back. "Why it matters."</p>
+
+<p>"The building can burn and the knowledge survive. We've seen it happen. The knowledge can be lost while the building stands. We've seen that too."</p>
+
+<p>She gestures at the walls. "This institution has stood for three hundred years. In that time, it has collected, cataloged, stored. Half a million scrolls. A monument to accumulation."</p>
+
+<p>"In that same time, my people lost our Temple—twice. Lost our homeland. Were scattered across the Mediterranean. And we preserved more of what mattered than this Library ever will. Because we didn't preserve scrolls. We preserved practice. Teaching. Living tradition."</p>
+
+<p>She meets your eyes. "That's the difference. The building is a container. The institution is a habit. The knowledge is what people carry in their heads and pass to their children. Only one of those survives fire."</p>`,
+    prompt: "How do you respond?",
+    choices: [
+        { text: "\"Tell me about your people's way. How it works.\"", next: "A2-LIBRARY-MODEL" },
+        { text: "\"But scrolls preserve things that memory can't. Details. Precision.\"", next: "A2-LIBRARY-SCROLLS-VALUE" },
+        { text: "\"What are you preserving, then? What's still at risk?\"", next: "A2-LIBRARY-HER-PRIORITIES" }
+    ]
+},
+
+"A2-LIBRARY-ALREADY-STARTED": {
+    title: "Already Started",
+    act: 2,
+    thread: "library",
+    prose: `<p>"Six months ago." She says it without pride—stating fact. "When the political situation began to shift. I didn't wait for a crisis. I started moving things."</p>
+
+<p>"The Septuagint—our scriptures in Greek—is already in three cities. Antioch, Cyrene, Rome. My brother has copies. My cousin has copies. If Alexandria burns tonight, that text survives."</p>
+
+<p>She pauses. "But that's the easy part. The Septuagint is famous. Many copies exist. What I'm worried about now is what no one else thinks to save."</p>
+
+<p>She touches one of the scrolls on her desk. "Aristobulus. A Jewish philosopher who wrote in Greek, two centuries ago. One copy exists. This one. If it burns, he's gone forever—not just his words, but the proof that my people thought philosophically, engaged with Greek ideas, built something here."</p>`,
+    prompt: "How do you respond?",
+    choices: [
+        { text: "\"What else is at risk? What else is there only one copy of?\"", next: "A2-LIBRARY-HER-PRIORITIES" },
+        { text: "\"Why does it matter—the proof that your people built something?\"", next: "A2-LIBRARY-PROOF" },
+        { text: "\"How can we help? What do you need?\"", next: "A2-LIBRARY-TERMS" }
+    ]
+},
+
+"A2-LIBRARY-MODEL": {
+    title: "Her People's Way",
+    act: 2,
+    thread: "library",
+    prose: `<p>"Our way." She settles back, and warmth enters her voice. This is her ground—the place where she's expert and unguarded.</p>
+
+<p>"When the Babylonians destroyed the first Temple, six hundred years ago, our scholars faced a choice. The rituals required the Temple. The sacrifices required the altar. Everything was built around a building that no longer existed."</p>
+
+<p>"So they built a new temple. Out of words. Out of practice. Out of teaching."</p>
+
+<p>She gestures outward. "Every synagogue around the Middle Sea is the same temple. The same words, the same rhythms, the same teachings. A child in Alexandria learns the same prayers as a child in Babylon. When the building burns, the temple travels."</p>
+
+<p>She looks at you. "Your Library preserves scrolls. My people preserve teaching. Scrolls can burn. Teaching lives in every student who learns it."</p>`,
+    prompt: "How do you respond?",
+    choices: [
+        { text: "\"But teaching changes over time. Drifts. Scrolls are fixed.\"", next: "A2-LIBRARY-SCROLLS-VALUE" },
+        { text: "\"What's still at risk for you? What hasn't been... distributed?\"", next: "A2-LIBRARY-HER-PRIORITIES" },
+        { text: "\"Could that model work for the Library? For Greek knowledge?\"", next: "A2-LIBRARY-APPLY" }
+    ]
+},
+
+"A2-LIBRARY-POTENTIAL": {
+    title: "Potential",
+    act: 2,
+    thread: "library",
+    prose: `<p>"Potential." She considers the word. "Someone might read it someday."</p>
+
+<p>"Someday is a long time. And fire doesn't wait."</p>
+
+<p>She gestures at her desk. "I've worked in these rooms for fifteen years. I've watched scholars come and go. Do you know what most of them study? The same texts. Aristotle. Plato. Euclid. Homer. The famous works, the established canon."</p>
+
+<p>"Half a million scrolls, and most scholars read the same hundred. The rest is... potential. Waiting for a someday that may never come."</p>
+
+<p>She leans forward. "I'm not saying it's worthless. I'm saying: when the fire comes, and you can only carry so much, what do you choose? The scroll that might matter someday? Or the knowledge that someone is actually using, teaching, living by?"</p>`,
+    prompt: "How do you respond?",
+    choices: [
+        { text: "\"What are you using? Teaching? Living by?\"", next: "A2-LIBRARY-HER-PRIORITIES" },
+        { text: "\"How do you make that choice? What's your method?\"", next: "A2-LIBRARY-MODEL" },
+        { text: "\"Let's talk about what you need. Your terms.\"", next: "A2-LIBRARY-TERMS" }
+    ]
+},
+
+"A2-LIBRARY-SCROLLS-VALUE": {
+    title: "The Value of Scrolls",
+    act: 2,
+    thread: "library",
+    prose: `<p>"You're right." She says it simply. "Teaching drifts. Memory fails. Scrolls preserve what the human mind cannot."</p>
+
+<p>She picks up one of the texts on her desk. "This is why I'm here. Fifteen years in a Greek institution, translating between languages. Because scrolls matter. Details matter. Precision matters."</p>
+
+<p>"But scrolls also distort. Every copy introduces errors. Every translation makes choices. The scroll you're reading is not the thought that was written down—it's a series of approximations, filtered through scribes and translators and time."</p>
+
+<p>She sets it down. "I don't think scrolls are worthless. I think they're tools. And like any tool, they work best when someone knows how to use them."</p>
+
+<p>"A scroll on a shelf is potential. A scroll in the hands of someone who teaches from it is knowledge. Both matter. But when the fire comes, I know which one survives."</p>`,
+    prompt: "How do you respond?",
+    choices: [
+        { text: "\"What scrolls are you trying to save? What's still at risk?\"", next: "A2-LIBRARY-HER-PRIORITIES" },
+        { text: "\"Tell me about the translation problem. What gets lost.\"", next: "A2-LIBRARY-TRANSLATION" },
+        { text: "\"What do you need from us? What are your terms?\"", next: "A2-LIBRARY-TERMS" }
+    ]
+},
+
+"A2-LIBRARY-BOTH": {
+    title: "Both",
+    act: 2,
+    thread: "library",
+    prose: `<p>"Both." She nods slowly. "If you can."</p>
+
+<p>"That's what I've been doing for fifteen years. Holding both. The Greek text that spreads the meaning wider. The Hebrew text that holds the meaning deeper. Every translation is a loss. Every translation is also a gain."</p>
+
+<p>She looks at you with something like respect. "Most people want a simple answer. Save this, abandon that. But the truth is always both. The scroll and the teaching. The building and the community. The text and the context."</p>
+
+<p>"The question isn't which one matters. The question is what you do when you can't carry everything."</p>`,
+    prompt: "How do you respond?",
+    choices: [
+        { text: "\"What would you carry? What's your priority?\"", next: "A2-LIBRARY-HER-PRIORITIES" },
+        { text: "\"Tell me about the context. What's at risk beyond the texts?\"", next: "A2-LIBRARY-CONTEXT" },
+        { text: "\"What do you need? What are your terms?\"", next: "A2-LIBRARY-TERMS" }
+    ]
+},
+
+"A2-LIBRARY-PROOF": {
+    title: "The Proof",
+    act: 2,
+    thread: "library",
+    prose: `<p>"Why does it matter." She's quiet for a moment. When she speaks, something has shifted—the professional distance easing.</p>
+
+<p>"I could tell you it matters for scholarship. For history. For understanding how ideas moved between cultures. That would be true."</p>
+
+<p>She looks at the scroll on her desk. "But the real reason is simpler. My people have been here for three hundred years. We built synagogues. We raised children. We argued philosophy and wrote poetry and translated texts that Greeks couldn't read otherwise."</p>
+
+<p>"When Alexandria burns—and it will burn, someday—what survives? If Aristobulus is gone, if the letters between our scholars and Jerusalem are gone, if the marginalia disappear... then we were never here. Just a population. Not a community that thought and built."</p>
+
+<p>She meets your eyes. "The proof matters because without it, we're erased. Not killed—erased. As if we never existed at all."</p>`,
+    prompt: "How do you respond?",
+    choices: [
+        { text: "\"I understand. What else needs saving? What else is at risk?\"", next: "A2-LIBRARY-HER-PRIORITIES" },
+        { text: "\"What do you need from us? How can we help?\"", next: "A2-LIBRARY-TERMS" }
+    ]
+},
+
+"A2-LIBRARY-APPLY": {
+    title: "Could It Work",
+    act: 2,
+    thread: "library",
+    prose: `<p>She considers the question seriously. "Could it work for Greek knowledge?"</p>
+
+<p>"Parts of it. Euclid is already taught—mathematicians pass it student to student. Hippocrates. The core medical texts. Philosophy, to some degree. Anything that's actually used, actually taught, already survives the way my people's knowledge survives."</p>
+
+<p>"But much of what's here..." She gestures at the walls. "It's not taught. It's stored. Histories no one reads. Poetry in dead languages. Commentaries on texts that were already obscure when they were written."</p>
+
+<p>"For that to survive our way, someone would have to care about it enough to teach it. To carry it. To make it part of a living tradition." She shrugs. "The Library's model assumes you can preserve without caring. Store it and wait. Our model requires someone to love it enough to pass it on."</p>`,
+    prompt: "How do you respond?",
+    choices: [
+        { text: "\"What do you love enough to pass on?\"", next: "A2-LIBRARY-HER-PRIORITIES" },
+        { text: "\"What do you need from us? Your terms.\"", next: "A2-LIBRARY-TERMS" }
+    ]
+},
+
+"A2-LIBRARY-TRANSLATION": {
+    title: "The Translation Problem",
+    act: 2,
+    thread: "library",
+    prose: `<p>Real warmth enters her voice. This is her expertise—the place where she's most fully herself.</p>
+
+<p>"Translation." She pulls one of the scrolls closer. "Let me show you something."</p>
+
+<p>"This word—ruach." She traces it with her finger. "In Hebrew, it means 'breath' and 'spirit' and 'wind.' The same word for all three. When God breathes life into Adam, when the spirit moves over the waters, when the wind blows from the east—same word."</p>
+
+<p>"In Greek, you have three different words. Pneuma. Psyche. Anemos. The translator picks one, and the others disappear."</p>
+
+<p>She looks up. "A Greek reading the text will never know that breath and spirit were once the same thing. That when my people say God's spirit moved, we also mean God's breath, God's wind—something physical, something you could feel on your face."</p>
+
+<p>She sets down the scroll. "Every translation is a choice. Every choice is a loss. I spend my life trying to carry as much as possible across the gap. But something always falls."</p>`,
+    prompt: "How do you respond?",
+    choices: [
+        { text: "\"Is the crossing worth it? Even with what's lost?\"", next: "A2-LIBRARY-CROSSING" },
+        { text: "\"What are you trying to preserve? Your priorities?\"", next: "A2-LIBRARY-HER-PRIORITIES" },
+        { text: "\"What do you need from us?\"", next: "A2-LIBRARY-TERMS" }
+    ]
+},
+
+"A2-LIBRARY-CONTEXT": {
+    title: "The Context",
+    act: 2,
+    thread: "library",
+    prose: `<p>"The context." She nods. "That's what keeps me up at night."</p>
+
+<p>"The Septuagint—our scriptures in Greek—is safe. Copies in three cities. Famous enough that others have copies too. The text survives."</p>
+
+<p>"But the letters between the scholars here and the scholars in Jerusalem, before—"</p>
+
+<p>She stops. The 'before' doesn't need finishing. You both know what happened to Jerusalem.</p>
+
+<p>"The marginalia. The notes in the margins, where translators argued about word choices. The variant readings. The proof that we didn't just translate—we thought about it, debated it, cared about getting it right."</p>
+
+<p>"Without the context, the text is... orphaned. You can read the words, but you can't hear the conversation that shaped them."</p>`,
+    prompt: "How do you respond?",
+    choices: [
+        { text: "\"What would it take to save the context?\"", next: "A2-LIBRARY-TERMS" },
+        { text: "\"What else is at risk?\"", next: "A2-LIBRARY-HER-PRIORITIES" }
+    ]
+},
+
+"A2-LIBRARY-CROSSING": {
+    title: "Is It Worth It",
+    act: 2,
+    thread: "library",
+    prose: `<p>She's quiet for a long moment. When she speaks, the professional distance is gone.</p>
+
+<p>"I ask myself that. Sometimes."</p>
+
+<p>"Every time I translate, I lose something. The breath becomes spirit. The spirit becomes wind. The word that held all three becomes three words that hold one each."</p>
+
+<p>"But then I think about what happens if we don't translate. The knowledge stays locked in Hebrew, and the Greeks never read it. It stays locked in Greek, and the Persians never learn it. It stays locked in one community, and when that community falls..."</p>
+
+<p>She spreads her hands. "Translation is loss. But isolation is death. I choose loss."</p>
+
+<p>She looks at you. "That's what I know about preservation. Sometimes you have to accept damage to achieve survival. The question is how much damage, and what survives."</p>`,
+    prompt: "How do you respond?",
+    choices: [
+        { text: "\"What's your priority? What must survive?\"", next: "A2-LIBRARY-HER-PRIORITIES" },
+        { text: "\"What do you need from us?\"", next: "A2-LIBRARY-TERMS" }
+    ]
+},
+
+"A2-LIBRARY-HER-PRIORITIES": {
+    title: "Her Priorities",
+    act: 2,
+    thread: "library",
+    prose: `<p>"My priorities." She counts on her fingers.</p>
+
+<p>"First: Aristobulus. One copy exists. Jewish philosophy in Greek—the proof that my people engaged with Greek thought, contributed to it. If he burns, that proof is gone."</p>
+
+<p>"Second: the letters. Correspondence between Alexandrian scholars and Jerusalem, from before—" She pauses. "From when Jerusalem still had scholars to write to. The proof of a conversation that no longer exists."</p>
+
+<p>"Third: the marginalia. Notes in the translation scrolls. Where my predecessors argued about word choices, preserved variant readings, recorded the debates that shaped the texts we use today."</p>
+
+<p>She lowers her hand. "These aren't the famous texts. They're not what your Theron would prioritize. But they're what my people will lose forever if no one carries them out."</p>`,
+    prompt: "How do you respond?",
+    choices: [
+        { text: "\"What do you need? What are your terms?\"", next: "A2-LIBRARY-TERMS" },
+        { text: "\"Why hasn't this already been copied? Distributed?\"", next: "A2-LIBRARY-WHY-NOT" }
+    ]
+},
+
+"A2-LIBRARY-WHY-NOT": {
+    title: "Why Not Already",
+    act: 2,
+    thread: "library",
+    prose: `<p>"Why hasn't it been copied?" She almost laughs. "Because no one cares."</p>
+
+<p>"The Septuagint is famous. Greeks read it. Christians use it. It matters to people who aren't Jewish, so it gets copied, distributed, preserved."</p>
+
+<p>"Aristobulus? He wrote in Greek, but he was Jewish. Too Jewish for the Greeks, too Greek for the Jews. He fell between categories. So no one copied him. No one thought he was worth the papyrus."</p>
+
+<p>She shrugs. "The letters, the marginalia—these matter to scholars. To translators. To people who care about how texts are made, not just what they say. A small community. Not enough to generate copies."</p>
+
+<p>"I've been trying to change that. Six months of slow work. But time ran out faster than I expected."</p>`,
+    prompt: "How do you respond?",
+    choices: [
+        { text: "\"What do you need? What are your terms?\"", next: "A2-LIBRARY-TERMS" }
+    ]
+},
+
+"A2-LIBRARY-TERMS": {
+    title: "Her Terms",
+    act: 2,
+    thread: "library",
+    prose: `<p>She sits back. The negotiation begins.</p>
+
+<p>"Three things. Non-negotiable."</p>
+
+<p>"First: my materials go with any shipment. Aristobulus, the letters, the marginalia. They don't get left behind because someone decides they're less important than Euclid."</p>
+
+<p>"Second: my brother's people in Antioch handle receiving for what I send. Not your network—mine. I trust them. I don't know yours."</p>
+
+<p>"Third: you tell Hypatia what I'm doing." She pauses. "She gave me a place here when others wouldn't. She deserves to know I've been building my own escape route. I won't lie to her."</p>
+
+<p>She folds her hands. "Those are my terms. In exchange, you get my network. Routes you don't have. Contacts you don't know. A thousand years of practice at carrying what matters through catastrophe."</p>`,
+    prompt: "How do you respond?",
+    choices: [
+        { text: "\"Done. All three. Your network complements ours.\"", next: "A2-LIBRARY-ACCEPT", effects: { threadsVisited: ["library"], threadsCompleted: ["library"], community: 1, dispersal: 1, harborAdvance: 1 } },
+        { text: "\"I need to think about it. The College has its own protocols.\"", next: "A2-LIBRARY-DEFER", effects: { threadsVisited: ["library"] } },
+        { text: "\"Why should I tell Hypatia? She doesn't need to know.\"", next: "A2-LIBRARY-CHALLENGE-HYPATIA" }
+    ]
+},
+
+"A2-LIBRARY-CHALLENGE-HYPATIA": {
+    title: "Why Hypatia",
+    act: 2,
+    thread: "library",
+    prose: `<p>Her expression cools. "You're asking me to betray someone who trusted me?"</p>
+
+<p>"Hypatia gave me a place in this institution when I had nowhere else to go. She's defended my work against scholars who thought a Jewish translator had no business with Greek texts. She believes in the Library the way my grandmother believed in the Temple—completely, without reservation."</p>
+
+<p>She stands, moves to the window. "She's going to stay. I know her. When the fire comes, she'll stay. And if I've been building an escape route without telling her... if I've been preparing to abandon the ship while she goes down with it..."</p>
+
+<p>She turns back. "I can live with leaving. I can't live with lying to her about it. That's my price. If you want my network, you tell her the truth."</p>`,
+    prompt: "How do you respond?",
+    choices: [
+        { text: "\"Fine. I'll tell her. All three terms accepted.\"", next: "A2-LIBRARY-ACCEPT", effects: { threadsVisited: ["library"], threadsCompleted: ["library"], community: 1, dispersal: 1, harborAdvance: 1 } },
+        { text: "\"I need time to think.\"", next: "A2-LIBRARY-DEFER", effects: { threadsVisited: ["library"] } }
+    ]
+},
+
+"A2-LIBRARY-ACCEPT": {
+    title: "Alliance Formed",
+    act: 2,
+    thread: "library",
+    prose: `<p>She studies you for a long moment. Then she nods—once, precisely.</p>
+
+<p>"Done." She stands, moves to a shelf, pulls down a scroll. "This is my network. Contacts in Antioch, Cyrene, Rome, Caesarea. Who to approach, what to say, where to find them. Memorize it or copy it—but don't let it fall into the wrong hands."</p>
+
+<p>She hands it to you. "Moving what matters. Carrying what can't be replaced. My people know how to survive catastrophe."</p>
+
+<p>She pauses at the door. "Tell Hypatia. And tell Theron—his network and mine, working together. We might save more than either could alone."</p>
+
+<p>She almost smiles. "A temple of words that can travel. Built together, this time."</p>`,
+    choices: [
+        { text: "Return to the Library.", next: "A2-HUB" }
+    ]
+},
+
+"A2-LIBRARY-DEFER": {
+    title: "Deferred",
+    act: 2,
+    thread: "library",
+    prose: `<p>She nods. Goes back to her texts.</p>
+
+<p>"Think about it. I'll be here." She picks up her pen. "I've been preparing for six months. A few more hours won't change what I'm doing."</p>
+
+<p>She looks up. "But don't wait too long. The harbor is changing. My brother's ships won't wait forever, and neither will Theron's."</p>
+
+<p>She returns to her work. The conversation isn't over—but the decision is yours to make.</p>`,
+    choices: [
+        { text: "Return to the Library.", next: "A2-HUB" }
+    ]
+},
+
+"A2-LIBRARY-RETURN": {
+    title: "Return to Miriam",
+    act: 2,
+    thread: "library",
+    prose: `<p>Miriam is where you left her—same texts, same room, same patient focus. She looks up when you enter.</p>
+
+<p>"You came back." Not surprise—assessment. She sets down her pen. "Have you reconsidered?"</p>
+
+<p>Her terms haven't changed. Her materials with any shipment. Her brother's people receiving. Hypatia told.</p>
+
+<p>"I don't need you to believe what I believe," she says. "I need you to see that our work helps yours. My network reaches places yours doesn't. My people have been carrying knowledge through catastrophe for a thousand years." She pauses. "You can use that. Or you can walk away again."</p>`,
+    prompt: "How do you respond?",
+    choices: [
+        { text: "\"Done. Your network complements ours.\"", next: "A2-LIBRARY-RETURN-ACCEPT", effects: { threadsCompleted: ["library"], community: 1, dispersal: 1, harborAdvance: 1 } },
+        { text: "\"I can't. I'm sorry.\"", next: "A2-LIBRARY-FINAL", effects: { threadsCompleted: ["library"] } }
+    ]
+},
+
+"A2-LIBRARY-RETURN-ACCEPT": {
+    title: "Alliance Formed",
+    act: 2,
+    thread: "library",
+    prose: `<p>She nods—once, precisely. "Good."</p>
+
+<p>She stands, pulls a scroll from the shelf. "My network. Contacts, routes, receiving points. Memorize it or copy it."</p>
+
+<p>She hands it to you. "You came back. That matters. Most people, when they hesitate, they're already gone."</p>
+
+<p>Something almost like warmth enters her expression. "Tell Hypatia. Tell Theron. And when the fire comes—we carry what we can, together."</p>`,
+    choices: [
+        { text: "Return to the Library.", next: "A2-HUB" }
+    ]
+},
+
+"A2-LIBRARY-FINAL": {
+    title: "Final Refusal",
+    act: 2,
+    thread: "library",
+    prose: `<p>She watches you for a moment. Then she nods—once, precisely—and picks up her pen.</p>
+
+<p>"Then we do what we were already doing. Separately." She returns to her text. "I hope your way works. I hope mine does too. We'll find out."</p>
+
+<p>She doesn't look up again. The conversation is over.</p>`,
+    choices: [
+        { text: "Leave.", next: "A2-HUB" }
+    ]
+},
+
+"A2-TEMPLE": {
+    title: "The Approach",
+    act: 2,
+    thread: "temple",
+    prose: `<p>The Serapeum rises on its hill above the old Egyptian quarter—a hundred steps climbing from the street to the colonnade. You've seen it from a distance a thousand times. The lighthouse marks the harbor; the Serapeum marks the city's other heart.</p>
+
+<p>The climb is longer than it looks. Pilgrims pass you going both directions—a woman with an offering basket, an old man leaning on his grandson. This is a living temple, not an archive. People come here to pray, to heal, to ask questions of the god.</p>
+
+<p>The Daughter Library is housed in the stoa—the covered walkway surrounding the main temple. You can see scholars moving between the columns, but they're not the dominant presence here. The dominant presence is Serapis himself, somewhere in the sanctuary beyond.</p>
+
+<p>A young priest intercepts you at the top of the steps. "You're expected," he says. "This way."</p>`,
+    choices: [
+        { text: "Follow him.", next: "A2-TEMPLE-ENCOUNTER" }
+    ]
+},
+
+"A2-TEMPLE-ENCOUNTER": {
+    title: "First Encounter",
+    act: 2,
+    thread: "temple",
+    prose: `<p>Khaemwaset receives you in a small courtyard behind the main temple. He sits on a stone bench, still as the statues in the sanctuary. He doesn't rise when you enter.</p>
+
+<p>"I wondered when someone would come." His voice is measured, unhurried. "You are from the Library. Or adjacent to it. You have the look—the particular anxiety of people who believe knowledge lives in buildings."</p>
+
+<p>He gestures to a seat across from him. Waits until you take it.</p>
+
+<p>"I am going to save us both some time. You want to know if the temple can help. The answer is yes. You want to know what it will cost. The answer is: more than you want to pay, but less than you fear." He pauses, letting the silence work. "Tell me what you want. I will tell you what it costs. We can both decide if the exchange is fair."</p>`,
+    prompt: "How do you respond?",
+    choices: [
+        { text: "\"What can you offer?\"", next: "A2-TEMPLE-OFFER" },
+        { text: "\"Why would you help us?\"", next: "A2-TEMPLE-MOTIVES" },
+        { text: "\"What's your price?\"", next: "A2-TEMPLE-PRICE" }
+    ]
+},
+
+"A2-TEMPLE-OFFER": {
+    title: "His Offer",
+    act: 2,
+    thread: "temple",
+    prose: `<p>"Twenty thousand scrolls in our vaults. The protection of the god—which is not nothing. Mobs that would burn a library hesitate at a temple." He speaks without emphasis, stating facts. "Brothers in Memphis, Thebes, even Babylon who will shelter what we send. A network older than your Invisible College, with deeper roots."</p>
+
+<p>He reaches for a cup of water, drinks slowly, sets it down precisely.</p>
+
+<p>"The Daughter Library has been here for two centuries. It has survived because it serves the temple, and the temple serves the city. Need outlasts prestige." He looks at you directly. "The Great Library collects knowledge. We use it. That is why we will still be here when your building is ash."</p>`,
+    prompt: "How do you respond?",
+    choices: [
+        { text: "\"And your price for this protection?\"", next: "A2-TEMPLE-PRICE" },
+        { text: "\"You sound very certain the Library will fall.\"", next: "A2-TEMPLE-CERTAINTY" },
+        { text: "\"Need outlasts prestige. Explain that.\"", next: "A2-TEMPLE-THEORY" }
+    ]
+},
+
+"A2-TEMPLE-MOTIVES": {
+    title: "His Motives",
+    act: 2,
+    thread: "temple",
+    prose: `<p>Something shifts in his face. Not anger—you are not important enough to anger him. Something closer to weariness.</p>
+
+<p>"Why would I help you." He repeats it, tasting the words. "Because I have spent fifty years building something that survives. Because I watched the oldest words in the world turn to dust when I was seven years old, and I learned what preservation actually means."</p>
+
+<p>He leans forward slightly—a small movement that feels significant from someone so still.</p>
+
+<p>"I will tell you something that will make you uncomfortable. The temple will benefit if the Library falls. We will become the center of knowledge in Alexandria. Our prestige will rise. Our endowments will grow." He pauses. "You have noticed this. Good. Now ask yourself: does that make my offer less valuable? Does the knowledge care who preserves it?"</p>`,
+    prompt: "How do you respond?",
+    choices: [
+        { text: "\"So you admit you're an opportunist.\"", next: "A2-TEMPLE-CHALLENGE" },
+        { text: "\"What would preservation cost us?\"", next: "A2-TEMPLE-PRICE" },
+        { text: "\"Tell me about watching those words turn to dust.\"", next: "A2-TEMPLE-VULNERABILITY" }
+    ]
+},
+
+"A2-TEMPLE-THEORY": {
+    title: "His Theory",
+    act: 2,
+    thread: "temple",
+    prose: `<p>"A farmer needs to know when to plant. When to harvest. How to treat a sick ox." Khaemwaset's voice takes on a teaching rhythm—patient, precise. "He comes to the temple. We tell him. He comes back next year. His son comes. His grandson. The knowledge survives because it is needed."</p>
+
+<p>He gestures toward the Library's distant outline. "Your scholars debate whether Aristotle's <em>Categories</em> should be read before his <em>Physics</em>. Fascinating. Essential, perhaps, to understanding the nature of being." A pause. "How many farmers care? How many soldiers? How many mothers trying to keep their children alive through fever season?"</p>
+
+<p>"Texts that people use survive. Texts that people admire gather dust until the dust becomes them. The temple provides services—healing, prophecy, agricultural guidance, funeral rites. That is why we persist. That is why we will still be here in three hundred years, when the Great Library is a memory."</p>`,
+    prompt: "How do you respond?",
+    choices: [
+        { text: "\"So you'd reduce all knowledge to what's useful?\"", next: "A2-TEMPLE-CHALLENGE-UTILITY" },
+        { text: "\"What would you want from us?\"", next: "A2-TEMPLE-PRICE" },
+        { text: "\"You've thought about this a long time.\"", next: "A2-TEMPLE-VULNERABILITY" }
+    ]
+},
+
+"A2-TEMPLE-CERTAINTY": {
+    title: "His Certainty",
+    act: 2,
+    thread: "temple",
+    prose: `<p>"I am certain of nothing." He says it simply. "But I have watched four changes of Ptolemaic leadership. I have seen what survives and what burns. Buildings burn. Institutions attached to rulers rise and fall with those rulers. Institutions attached to gods..."</p>
+
+<p>He looks toward the sanctuary, where the great statue of Serapis sits in shadow.</p>
+
+<p>"Gods change slowly. Rulers change quickly. The temple has served Persians, Pharaohs, Ptolemies. It will serve Rome if Rome comes. This is not corruption. This is how you build something that outlasts a single lifetime."</p>
+
+<p>He turns back to you. "Your Library depends on royal patronage. What happens when the patron changes? What happens when the new ruler decides Greek knowledge is less important than Egyptian loyalty, or Roman order?"</p>`,
+    prompt: "How do you respond?",
+    choices: [
+        { text: "\"You'd serve anyone. That's not preservation—it's survival.\"", next: "A2-TEMPLE-CHALLENGE" },
+        { text: "\"What would you need from us?\"", next: "A2-TEMPLE-PRICE" },
+        { text: "\"How did you learn to think this way?\"", next: "A2-TEMPLE-VULNERABILITY" }
+    ]
+},
+
+"A2-TEMPLE-CHALLENGE": {
+    title: "The Challenge",
+    act: 2,
+    thread: "temple",
+    prose: `<p>"Yes."</p>
+
+<p>The single word hangs in the air. He doesn't elaborate, doesn't defend. Just waits.</p>
+
+<p>"Yes, I am an opportunist. Yes, the temple will benefit. Yes, I would serve Rome as I have served Ptolemies, as my predecessors served Persians." He folds his hands. "Do not pretend that purity has ever preserved anything. Your Library has survived by pleasing rulers, by making itself useful to power, by compromising a thousand times in ways you do not discuss in your reading rooms."</p>
+
+<p>He leans back. "I am honest about what I am. I am offering you something real—vaults, networks, the protection of an institution that has outlasted empires. You can refuse because my motives are impure. The knowledge will not care. It will simply cease to exist."</p>`,
+    prompt: "How do you respond?",
+    choices: [
+        { text: "\"What exactly do you want?\"", next: "A2-TEMPLE-PRICE" },
+        { text: "\"Why do you care about preservation at all?\"", next: "A2-TEMPLE-VULNERABILITY" },
+        { text: "\"I've heard enough. What are your terms?\"", next: "A2-TEMPLE-TERMS" }
+    ]
+},
+
+"A2-TEMPLE-CHALLENGE-UTILITY": {
+    title: "The Challenge",
+    act: 2,
+    thread: "temple",
+    prose: `<p>"Reduce?" He considers the word. "No. But I would be honest about what survives and why."</p>
+
+<p>"Your Library has Sappho's poems. Beautiful. Essential to understanding the human heart. How many copies exist? How many people read them each year? How many would notice if they vanished?" He pauses. "Now consider the medical texts. The agricultural calendars. The astronomical tables that tell sailors when to travel. How many copies? How many readers? How many would die if they vanished?"</p>
+
+<p>"I am not saying Sappho does not matter. I am saying that Sappho's survival depends on someone choosing to copy her, again and again, for reasons that have nothing to do with her beauty. Need creates copies. Admiration creates single precious objects that burn."</p>`,
+    prompt: "How do you respond?",
+    choices: [
+        { text: "\"So what would you preserve?\"", next: "A2-TEMPLE-PRICE" },
+        { text: "\"You've watched things burn before.\"", next: "A2-TEMPLE-VULNERABILITY" },
+        { text: "\"Give me your terms.\"", next: "A2-TEMPLE-TERMS" }
+    ]
+},
+
+"A2-TEMPLE-VULNERABILITY": {
+    title: "The Memory",
+    act: 2,
+    thread: "temple",
+    prose: `<p>For the first time, Khaemwaset looks away—toward the window, toward memory.</p>
+
+<p>"I was seven years old. My father was a priest in a small temple, upriver. There was a chamber that had been sealed for three hundred years. The priests decided to open it—there were records inside, they believed, from before Alexander."</p>
+
+<p>His voice softens, but remains precise.</p>
+
+<p>"There were scrolls. Papyrus so old it crumbled when the air touched it. My father held one up to the light, trying to read it, and it fell apart in his hands. Just... dissolved. Three hundred years of protection, and the moment we tried to use what we had protected, it died."</p>
+
+<p>He turns back to you. "That is when I learned what preservation means. Not keeping things. Making them unnecessary. Copying, teaching, spreading—until the original can die and nothing is lost. The words live because they are in a hundred places, not because they are locked in one."</p>`,
+    prompt: "How do you respond?",
+    choices: [
+        { text: "\"That's why you want our scholars. To spread what they know.\"", next: "A2-TEMPLE-SCHOLARS-INSIGHT" },
+        { text: "\"What would you need from us?\"", next: "A2-TEMPLE-PRICE" }
+    ]
+},
+
+"A2-TEMPLE-SCHOLARS-INSIGHT": {
+    title: "The Insight",
+    act: 2,
+    thread: "temple",
+    prose: `<p>Khaemwaset's eyes sharpen. For a moment, something like respect flickers across his face.</p>
+
+<p>"Yes." He says it simply, without elaboration. Then: "You understand faster than most."</p>
+
+<p>He leans forward slightly. "Demetrios knows things about Babylonian astronomy that exist nowhere else—not in scrolls, but in his head. The connections he makes, the patterns he sees. If he dies, that dies with him. But if he teaches here for five years..." He spreads his hands. "Twenty students. Twenty copies of what he knows, walking out into the world."</p>
+
+<p>"The scrolls are cargo. The scholars are seeds." He settles back. "That is why I want them. Not to own them. To plant them."</p>`,
+    prompt: "How do you respond?",
+    choices: [
+        { text: "\"What else would you need?\"", next: "A2-TEMPLE-PRICE" },
+        { text: "\"Give me your full terms.\"", next: "A2-TEMPLE-TERMS" }
+    ]
+},
+
+"A2-TEMPLE-PRICE": {
+    title: "His Price",
+    act: 2,
+    thread: "temple",
+    prose: `<p>"Three things." He holds up fingers as he counts. "First: the Egyptian materials. The temple records, the hieratic texts, the sacred calendars that your Library has... collected... over the centuries. They were ours. I want them returned."</p>
+
+<p>"Second: scholars. I want Demetrios, who reads the old Babylonian. I want young Ptolemaios, who has done more work on the sacred calendars than anyone in the city. I want them to work from the Serapeum for five years." He sees your expression. "I am not asking to own them. I am asking that they teach here, copy here, make what they know available here."</p>
+
+<p>"Third: acknowledgment. When this is over, however it ends, the world knows that the temple sheltered Alexandria's knowledge. That the god preserved what would otherwise have been lost."</p>
+
+<p>He folds his hands. "That is my price. You may find it too high. I will not haggle."</p>`,
+    prompt: "How do you respond?",
+    choices: [
+        { text: "\"Why do you want acknowledgment?\"", next: "A2-TEMPLE-ACKNOWLEDGMENT" },
+        { text: "\"I need to understand why this matters to you.\"", next: "A2-TEMPLE-VULNERABILITY" },
+        { text: "\"Let me think about your terms.\"", next: "A2-TEMPLE-TERMS" }
+    ]
+},
+
+"A2-TEMPLE-ACKNOWLEDGMENT": {
+    title: "Acknowledgment",
+    act: 2,
+    thread: "temple",
+    prose: `<p>"Because institutions survive on reputation." He says it simply. "Because the next time there is a crisis, people will remember that the temple helped. Because acknowledgment creates obligation, and obligation creates relationship, and relationship is what keeps things alive across centuries."</p>
+
+<p>He pauses. "And because it is true. If I shelter your knowledge, I want the world to know I sheltered it. I am not ashamed of wanting credit for what I do. Your Library has spent three centuries claiming credit for preserving civilization. I would like some of that credit—earned, for something I actually did."</p>
+
+<p>His eyes are steady. "Is that so difficult to understand?"</p>`,
+    prompt: "How do you respond?",
+    choices: [
+        { text: "\"No. It's honest.\"", next: "A2-TEMPLE-TERMS" },
+        { text: "\"I need to think.\"", next: "A2-TEMPLE-TERMS" }
+    ]
+},
+
+"A2-TEMPLE-TERMS": {
+    title: "The Terms",
+    act: 2,
+    thread: "temple",
+    prose: `<p>Khaemwaset waits. The courtyard is quiet—distant sounds of temple activity, but here, stillness.</p>
+
+<p>"Twenty thousand scrolls in our vaults. The network of temples across Egypt and beyond. The protection of the god." He states it plainly. "In exchange: the Egyptian materials returned, two scholars for five years, and acknowledgment."</p>
+
+<p>"The offer will not improve with time. But it will not withdraw either. The temple has patience."</p>
+
+<p>He rises—slowly, deliberately. The conversation is reaching its end.</p>
+
+<p>"Tell me what you want. I will tell you if we have an agreement."</p>`,
+    prompt: "How do you respond?",
+    choices: [
+        { text: "\"Your terms are harsh but honest. Done.\"", next: "A2-TEMPLE-ACCEPT", effects: { threadsVisited: ["temple"], threadsCompleted: ["temple"], temple: 1, harborAdvance: 1 } },
+        { text: "\"I need to take this back to the others.\"", next: "A2-TEMPLE-DEFER", effects: { threadsVisited: ["temple"] } },
+        { text: "\"I can't agree to this. The price is too high.\"", next: "A2-TEMPLE-REFUSE", effects: { threadsVisited: ["temple"], threadsCompleted: ["temple"] } }
+    ]
+},
+
+"A2-TEMPLE-ACCEPT": {
+    title: "Agreement",
+    act: 2,
+    thread: "temple",
+    prose: `<p>Khaemwaset inclines his head—a small gesture that carries weight.</p>
+
+<p>"Then we have an agreement. The vaults will be ready. The network will be informed." He moves toward the inner temple, then pauses. "I will pray for your Library. I do not think prayer will save it. But I will pray nonetheless."</p>
+
+<p>He looks back at you. "You have made a practical choice. Do not be ashamed of it. The knowledge does not care about your feelings. It only cares whether it survives."</p>
+
+<p>The young priest appears to escort you out. Behind you, Khaemwaset disappears into the shadows of the sanctuary.</p>
+
+<p>The deal is struck. The temple will help—at its price.</p>`,
+    choices: [
+        { text: "Return to the city.", next: "A2-HUB" }
+    ]
+},
+
+"A2-TEMPLE-DEFER": {
+    title: "Deferred",
+    act: 2,
+    thread: "temple",
+    prose: `<p>"Of course." Khaemwaset settles back onto the bench. "Take it to your colleagues. Debate it in your hidden chambers. I understand the need for consultation."</p>
+
+<p>He gestures toward the city below. "But understand: the harbor is changing. I can see it from here. Ships leaving early. Soldiers arriving. Whatever is coming, it will not wait for your deliberations."</p>
+
+<p>He folds his hands. "The offer stands. The temple has patience. But the crisis does not."</p>
+
+<p>The young priest appears to escort you out. You've learned what you came to learn. The decision remains unmade.</p>`,
+    choices: [
+        { text: "Return to the city.", next: "A2-HUB" }
+    ]
+},
+
+"A2-TEMPLE-REFUSE": {
+    title: "Refused",
+    act: 2,
+    thread: "temple",
+    prose: `<p>Khaemwaset's expression doesn't change. He simply nods.</p>
+
+<p>"The price is what it is. I do not haggle." He rises, moves toward the inner temple. "I hope your other options prove more palatable. I suspect they will not, but I have been wrong before."</p>
+
+<p>He pauses at the threshold. "The vaults will be here when the fire comes. If your way fails, some of what you carry may still find its way to us. We have been receiving refugees for a very long time."</p>
+
+<p>He disappears into the shadows. The conversation is over.</p>`,
+    choices: [
+        { text: "Return to the city.", next: "A2-HUB" }
+    ]
+},
+
+"A2-TEMPLE-RETURN": {
+    title: "Return to the Temple",
+    act: 2,
+    thread: "temple",
+    prose: `<p>The hundred steps feel shorter this time. The young priest recognizes you, leads you directly to the courtyard.</p>
+
+<p>Khaemwaset is where you left him—or perhaps he never moved. The stillness, the patient eyes that miss nothing.</p>
+
+<p>"You've returned." He gestures to the seat across from him. "I wondered if you would."</p>
+
+<p>He doesn't repeat his offer. He doesn't need to.</p>
+
+<p>"The harbor is changing. I can see it from the temple hill. Ships leaving. Soldiers arriving." A pause. "My offer will not improve with time. But it will not withdraw either. The temple has patience."</p>
+
+<p>His terms remain: the Egyptian materials, the scholars, the acknowledgment. Twenty thousand scrolls in vaults that have held sacred things for centuries.</p>`,
+    prompt: "How do you respond?",
+    choices: [
+        { text: "\"Done. The temple's patience has been rewarded.\"", next: "A2-TEMPLE-RETURN-ACCEPT", effects: { threadsCompleted: ["temple"], temple: 1, harborAdvance: 1 } },
+        { text: "\"I can't. The price is too high.\"", next: "A2-TEMPLE-FINAL", effects: { threadsCompleted: ["temple"] } }
+    ]
+},
+
+"A2-TEMPLE-RETURN-ACCEPT": {
+    title: "Agreement",
+    act: 2,
+    thread: "temple",
+    prose: `<p>"Patience is what we have." He inclines his head. "The vaults will be ready. The network has already been informed—I anticipated the possibility."</p>
+
+<p>He rises slowly. "You took time to think. That is not weakness. Some decisions should not be made quickly." He moves toward the sanctuary. "The god will receive what you send. And when this is over, the world will know who sheltered it."</p>
+
+<p>The young priest escorts you out. The city spreads below, tense and waiting.</p>
+
+<p>The deal is struck. The temple will help—at its price.</p>`,
+    choices: [
+        { text: "Return to the city.", next: "A2-HUB" }
+    ]
+},
+
+"A2-TEMPLE-FINAL": {
+    title: "Final Refusal",
+    act: 2,
+    thread: "temple",
+    prose: `<p>Khaemwaset inclines his head—not agreement, but acknowledgment.</p>
+
+<p>"The price is what it is. I do not haggle." He rises and moves toward the inner temple. "The vaults will be here when the fire comes. If your way fails, some of what you carry may still find its way to us. We have been receiving refugees for a very long time."</p>
+
+<p>He pauses at the doorway. "I hope your way works. I do not think it will. But I have been wrong before."</p>
+
+<p>He disappears into the shadows. The conversation is over.</p>`,
+    choices: [
+        { text: "Return to the city.", next: "A2-HUB" }
+    ]
+},
+
+"A2-CITY": {
+    title: "Into the City",
+    act: 2,
+    thread: "city",
+    prose: `<p>You leave the Library district and descend into working Alexandria. The streets narrow. The air changes—smoke from cook-fires, the smell of tanning leather, the sounds of hammers and saws and voices haggling over prices.</p>
+
+<p>This is the city that built the Library. The masons, the carpenters, the laborers who hauled stone and mixed mortar. Three hundred years of work, and most of them have never been inside.</p>
+
+<p>Theron mentioned a mason—Demetria. "She knows the building's infrastructure. Service routes, weak points, things the scholars never think about. Find her at the guild hall or one of the construction sites in the western quarter."</p>
+
+<p>You ask around. A carpenter points you toward a site near the old wall. "She's been working foundations there. Look for the woman who doesn't stop."</p>`,
+    choices: [
+        { text: "Find the construction site.", next: "A2-CITY-ENCOUNTER" }
+    ]
+},
+
+"A2-CITY-ENCOUNTER": {
+    title: "First Encounter",
+    act: 2,
+    thread: "city",
+    prose: `<p>You find her in a trench—alone, working mortar into foundation stones. The rhythm is steady: stone, mortar, press. Stone, mortar, press. She doesn't look up when your shadow falls across her work.</p>
+
+<p>"You're from the Library."</p>
+
+<p>It's not a question. She keeps working.</p>
+
+<p>"The repair's done. Signed off yesterday. If there's a problem with the drainage, talk to Kosmas—he handled that section."</p>
+
+<p>Stone, mortar, press.</p>
+
+<p>"That's not why I'm here," you say.</p>
+
+<p>She pauses. Looks up at you for the first time. Forty-one years old, sun-darkened skin, hands that have never been soft. She studies you the way she might study a crack in a foundation—assessing, not judging.</p>
+
+<p>"Then why are you here?"</p>`,
+    prompt: "How do you respond?",
+    choices: [
+        { text: "\"The Library may be in danger. We need help.\"", next: "A2-CITY-DANGER" },
+        { text: "\"I want to understand how the city sees the Library.\"", next: "A2-CITY-UNDERSTAND" },
+        { text: "\"You know things about the building that we don't.\"", next: "A2-CITY-KNOWLEDGE" }
+    ]
+},
+
+"A2-CITY-DANGER": {
+    title: "The Danger",
+    act: 2,
+    thread: "city",
+    prose: `<p>She looks at you for a long moment. Then she goes back to work.</p>
+
+<p>"The Library may be in danger." She repeats it, flat. Stone, mortar, press. "And you want help. From us."</p>
+
+<p>"We won't." She doesn't look up. "My street won't. The docks won't. The weavers, the potters, the men who unload grain ships—they won't."</p>
+
+<p>Stone, mortar, press.</p>
+
+<p>"You want to know why, or do you already know?"</p>`,
+    prompt: "How do you respond?",
+    choices: [
+        { text: "\"Tell me why.\"", next: "A2-CITY-FATHER" },
+        { text: "\"The Library benefits everyone. Knowledge is—\"", next: "A2-CITY-CHALLENGE-KNOWLEDGE" },
+        { text: "\"What would it take to change that?\"", next: "A2-CITY-WHAT-WOULD-IT-TAKE" }
+    ]
+},
+
+"A2-CITY-UNDERSTAND": {
+    title: "Understanding",
+    act: 2,
+    thread: "city",
+    prose: `<p>She stops working. Sets down her trowel. Looks at you with something that might be curiosity, or might be suspicion.</p>
+
+<p>"How the city sees the Library." She says it slowly, tasting the words. "You want to know that."</p>
+
+<p>She climbs out of the trench, sits on the edge, wipes her hands on her tunic. For the first time, you have her full attention.</p>
+
+<p>"My father built part of that Library. Western wall, near the gardens. Took him two years. He used to say it was the best work he ever did—the way the stones fit, the way the light came through." She pauses. "He was proud."</p>
+
+<p>"You want to know how the city sees it? We built it. And then we were done."</p>`,
+    prompt: "How do you respond?",
+    choices: [
+        { text: "\"What happened to your father?\"", next: "A2-CITY-FATHER" },
+        { text: "\"But the knowledge inside benefits everyone.\"", next: "A2-CITY-CHALLENGE-KNOWLEDGE" },
+        { text: "\"That sounds like there's more to the story.\"", next: "A2-CITY-FATHER" }
+    ]
+},
+
+"A2-CITY-KNOWLEDGE": {
+    title: "Her Knowledge",
+    act: 2,
+    thread: "city",
+    prose: `<p>She stops. Looks at you differently now—still assessing, but with a flicker of interest.</p>
+
+<p>"Things you don't know." She climbs out of the trench, sits on the edge. "Like what?"</p>
+
+<p>"Like how fire spreads through this city. Like which routes the soldiers block and which they forget. Like where the service entrances are—the ones I helped build, the ones your scholars walk past without seeing."</p>
+
+<p>She studies you. "You actually want to know this? Or is this the part where you pretend to listen, then go back to your scrolls?"</p>`,
+    prompt: "How do you respond?",
+    choices: [
+        { text: "\"I actually want to know. Tell me about the fire routes.\"", next: "A2-CITY-FIRE" },
+        { text: "\"Why would you share this with me?\"", next: "A2-CITY-WHY-SHARE" },
+        { text: "\"First tell me why you'd help at all.\"", next: "A2-CITY-FATHER" }
+    ]
+},
+
+"A2-CITY-FATHER": {
+    title: "Her Father",
+    act: 2,
+    thread: "city",
+    prose: `<p>"My father." She says it without emotion—stating a fact. "He built the western wall. Best work he ever did. Three years later, he fell from a scaffold on a different job. Different building, nothing to do with the Library. Broke his back."</p>
+
+<p>Stone, mortar, press. She's picked up the trowel again, but the rhythm is slower now.</p>
+
+<p>"You know who paid for his care? The guild. You know who brought food? The neighbors. You know who came from that beautiful building he spent two years constructing?"</p>
+
+<p>She looks up at you.</p>
+
+<p>"No one. Not once. Not a single person from the Library ever came to see the man who built their wall."</p>`,
+    prompt: "How do you respond?",
+    choices: [
+        { text: "\"That's... I'm sorry. That's not right.\"", next: "A2-CITY-SORRY" },
+        { text: "\"But the Library serves all of Alexandria—\"", next: "A2-CITY-CHALLENGE-KNOWLEDGE" },
+        { text: "\"What would make it right now?\"", next: "A2-CITY-WHAT-WOULD-IT-TAKE" }
+    ]
+},
+
+"A2-CITY-SORRY": {
+    title: "Sorry",
+    act: 2,
+    thread: "city",
+    prose: `<p>She watches you for a moment. Something shifts in her expression—not softening, exactly, but a kind of acknowledgment.</p>
+
+<p>"No. It's not right." She goes back to work, but she keeps talking. "My mother died the next year. Fever. The Library has physicians—I've heard about them. Trained scholars who study the old texts, who know things the street healers don't."</p>
+
+<p>Stone, mortar, press.</p>
+
+<p>"None of them came to our street. Why would they? We're not scholars. We're not patrons. We're the people who built their walls and then went home."</p>
+
+<p>She's not angry. That's what makes it worse. She's just... stating what happened.</p>`,
+    prompt: "How do you respond?",
+    choices: [
+        { text: "\"What about your daughter? Theron mentioned—\"", next: "A2-CITY-DAUGHTER" },
+        { text: "\"What would it take for the Library to matter to your street?\"", next: "A2-CITY-WHAT-WOULD-IT-TAKE" },
+        { text: "\"You know things about this city that could help us.\"", next: "A2-CITY-FIRE" }
+    ]
+},
+
+"A2-CITY-CHALLENGE-KNOWLEDGE": {
+    title: "The Challenge",
+    act: 2,
+    thread: "city",
+    prose: `<p>She stops working. Sets down her trowel. When she speaks, her voice is flat.</p>
+
+<p>"The Library benefits everyone. Knowledge is—" She waits. "Go on. Finish the sentence. I want to hear you say it."</p>
+
+<p>You hesitate.</p>
+
+<p>"My daughter was born with a twisted foot. The physicians at the Library—the ones who study the ancient texts—they looked at her and said there was nothing to be done. 'A deformity of the bones,' they said. 'She'll never walk properly.'"</p>
+
+<p>She picks up her trowel again. Stone, mortar, press.</p>
+
+<p>"The midwife came the next week. Old woman from the delta. No scrolls. No training at your Library. She looked at the foot, felt the bones, and started wrapping it. Every day for a year. Tight wraps, changed every morning. She learned it from her mother, who learned it from hers."</p>
+
+<p>She looks up at you.</p>
+
+<p>"My daughter runs now. Not well, but she runs. The scroll didn't come to my house. The midwife did."</p>`,
+    prompt: "How do you respond?",
+    choices: [
+        { text: "\"I... don't have an answer for that.\"", next: "A2-CITY-NO-ANSWER" },
+        { text: "\"What would change your mind about helping?\"", next: "A2-CITY-WHAT-WOULD-IT-TAKE" },
+        { text: "\"You know things that could help save what's inside.\"", next: "A2-CITY-FIRE" }
+    ]
+},
+
+"A2-CITY-DAUGHTER": {
+    title: "Her Daughter",
+    act: 2,
+    thread: "city",
+    prose: `<p>She pauses. For the first time, something moves behind her eyes.</p>
+
+<p>"My daughter. Born with a twisted foot. The physicians at the Library—the ones who study the ancient texts—they said there was nothing to be done."</p>
+
+<p>She sets down her trowel.</p>
+
+<p>"The midwife came the next week. Old woman from the delta. No scrolls. Never been inside your Library. She looked at the foot, felt the bones, and started wrapping it. Every day for a year. Tight wraps, changed every morning."</p>
+
+<p>She looks at you directly. "My daughter runs now. Not well, but she runs. She's twelve. She wants to be a mason like me."</p>
+
+<p>A pause. "The scroll didn't come to my house. The midwife did. You understand what I'm telling you?"</p>`,
+    prompt: "How do you respond?",
+    choices: [
+        { text: "\"The Library failed you. I understand.\"", next: "A2-CITY-NO-ANSWER" },
+        { text: "\"What would it take for us to do better?\"", next: "A2-CITY-WHAT-WOULD-IT-TAKE" },
+        { text: "\"You know things about this city we need. Fire routes, infrastructure.\"", next: "A2-CITY-FIRE" }
+    ]
+},
+
+"A2-CITY-NO-ANSWER": {
+    title: "No Answer",
+    act: 2,
+    thread: "city",
+    prose: `<p>She watches you. The silence stretches.</p>
+
+<p>"You don't have an answer." She says it without triumph. "That's... more honest than most."</p>
+
+<p>She picks up her trowel, but she doesn't go back to work. Instead, she sits on the edge of the trench, looking at you.</p>
+
+<p>"Three hundred years. Your Library has been there for three hundred years. My father built part of it. My grandfather hauled the stone. And in all that time, no one from inside those walls has ever asked what we think. What we need. What we know."</p>
+
+<p>She shrugs. "You're asking now. I don't know if it matters. But you're asking."</p>`,
+    prompt: "How do you respond?",
+    choices: [
+        { text: "\"What would it take to matter?\"", next: "A2-CITY-WHAT-WOULD-IT-TAKE" },
+        { text: "\"Tell me what you know. About the city, about fire, about infrastructure.\"", next: "A2-CITY-FIRE" }
+    ]
+},
+
+"A2-CITY-WHY-SHARE": {
+    title: "Why Share",
+    act: 2,
+    thread: "city",
+    prose: `<p>She considers the question. Really considers it.</p>
+
+<p>"I don't know yet." She climbs out of the trench, sits on the edge. "Maybe because you're the first one who asked. Maybe because my father would have wanted me to—he was proud of that wall, even if no one ever thanked him for it."</p>
+
+<p>She looks toward the Library's distant outline.</p>
+
+<p>"Or maybe because if it burns, my daughter will ask me what I did. And I'd like to have an answer that isn't 'nothing.'"</p>
+
+<p>She turns back to you. "But I'm not doing it for free. Not for the Library. Not for the scrolls. For my people."</p>`,
+    prompt: "How do you respond?",
+    choices: [
+        { text: "\"What do you want for your people?\"", next: "A2-CITY-WHAT-WOULD-IT-TAKE" },
+        { text: "\"Tell me what you know first. Then we'll talk about terms.\"", next: "A2-CITY-FIRE" }
+    ]
+},
+
+"A2-CITY-WHAT-WOULD-IT-TAKE": {
+    title: "What Would It Take",
+    act: 2,
+    thread: "city",
+    prose: `<p>She's quiet for a moment. When she speaks, her voice is different—harder, but also clearer. This is the negotiation.</p>
+
+<p>"Passage for fifty. Guild members and their families. If whatever's coming is bad enough that you're asking us for help, it's bad enough that my people need a way out."</p>
+
+<p>She holds up a hand before you can respond.</p>
+
+<p>"I know what you're thinking. Fifty is a lot. Ships are limited. Scrolls are more important." She shrugs. "Maybe they are. But those are my terms. You want what I know? You want me to talk to my quarter, spread the word that the Library finally remembered who built it? Fifty people. That's the price."</p>
+
+<p>"If your scrolls are worth saving, so are my people."</p>`,
+    prompt: "How do you respond?",
+    choices: [
+        { text: "\"Tell me what you know first.\"", next: "A2-CITY-FIRE" },
+        { text: "\"Fifty people. What else?\"", next: "A2-CITY-TERMS" },
+        { text: "\"That's a lot. I don't know if we can—\"", next: "A2-CITY-HESITATION" }
+    ]
+},
+
+"A2-CITY-FIRE": {
+    title: "What She Knows",
+    act: 2,
+    thread: "city",
+    prose: `<p>She nods slowly. Stands, wipes her hands, and looks out over the city.</p>
+
+<p>"Fire spreads east in summer. The wind off the harbor. If something starts near the docks, it'll move toward the Jewish quarter first, then bend south toward the Egyptian district. The streets there are narrow—buildings touch at the second story. A fire can jump block to block without touching the ground."</p>
+
+<p>She points. "The Library sits in the royal quarter. Wide streets, stone buildings. Harder to burn. But the approaches—" She traces lines in the air. "Three main routes in. Soldiers will block them first. But there are service entrances. Delivery routes for food, for supplies. I helped build two of them."</p>
+
+<p>She looks at you. "Your scholars walk past them every day without seeing. But I could get fifty people through without anyone noticing."</p>`,
+    prompt: "How do you respond?",
+    choices: [
+        { text: "\"Fifty people out—or fifty people in?\"", next: "A2-CITY-IN-OR-OUT" },
+        { text: "\"What else do you know about how mobs move?\"", next: "A2-CITY-MOBS" },
+        { text: "\"What would it take for your quarter to help defend the Library?\"", next: "A2-CITY-TERMS" }
+    ]
+},
+
+"A2-CITY-IN-OR-OUT": {
+    title: "In or Out",
+    act: 2,
+    thread: "city",
+    prose: `<p>She almost smiles. Almost.</p>
+
+<p>"Both. That's the thing about knowing how a building works. You know how to get out of it. But you also know how to get into it. How to defend it. Where the weak points are."</p>
+
+<p>She sits back down on the edge of the trench. "Forty-three guild members in Alexandria right now. Masons, carpenters, laborers. Two hundred dependents—families, mostly. We know every building in this city because we built them."</p>
+
+<p>She looks at you. "You want defenders? We're not soldiers. But we know how walls work. We know where they're strong and where they're weak. We know how to build barricades that hold and where to put them."</p>
+
+<p>"The question is why we would."</p>`,
+    prompt: "How do you respond?",
+    choices: [
+        { text: "\"Passage for fifty. That's why.\"", next: "A2-CITY-TERMS" },
+        { text: "\"What would it take?\"", next: "A2-CITY-TERMS" }
+    ]
+},
+
+"A2-CITY-MOBS": {
+    title: "How Mobs Move",
+    act: 2,
+    thread: "city",
+    prose: `<p>"Mobs." She says the word like she's tasted it before. "I was twelve during the riots under Ptolemy Auletes. My mother kept us inside, but I watched from the roof."</p>
+
+<p>She traces patterns in the dust.</p>
+
+<p>"They follow the wide streets first. Easier to move, easier to see each other. They avoid the narrow quarters—too easy to get trapped, too hard to run. They go where they feel powerful."</p>
+
+<p>She looks up. "The royal quarter has wide streets. That's where the Library is. If a mob forms, that's where it'll go—unless something turns it. Something it fears more than it wants."</p>
+
+<p>"Soldiers turn mobs. But so do neighbors. People who know them. Teachers. The rioters during the succession crisis—they stopped at the Library because they saw their own tutors in the doorway." She shrugs. "No one from my quarter was in that mob. But if they had been... would they have seen anyone they knew?"</p>`,
+    prompt: "How do you respond?",
+    choices: [
+        { text: "\"What would it take for your people to stand in that doorway?\"", next: "A2-CITY-TERMS" },
+        { text: "\"You're saying the Library needs to matter to the city first.\"", next: "A2-CITY-MATTER" }
+    ]
+},
+
+"A2-CITY-MATTER": {
+    title: "What Would Matter",
+    act: 2,
+    thread: "city",
+    prose: `<p>"I'm saying three hundred years is a long time to be invisible." She picks up her trowel again. "I'm saying my father built that wall and no one ever knew his name. I'm saying my daughter almost grew up crippled because the scroll didn't come to our house."</p>
+
+<p>Stone, mortar, press.</p>
+
+<p>"You want us to care about the Library? Give us a reason. Not words. Not promises about knowledge benefiting everyone someday. Something real. Something now."</p>
+
+<p>She looks up.</p>
+
+<p>"Passage for fifty. That's my price. You get my people out, I'll talk to the quarter. I'll spread the word that when it mattered, the Library remembered who built it. First time in three hundred years."</p>
+
+<p>She waits. "That's my offer. Take it or don't."</p>`,
+    prompt: "How do you respond?",
+    choices: [
+        { text: "\"Fifty people. Done.\"", next: "A2-CITY-ACCEPT", effects: { threadsVisited: ["city"], threadsCompleted: ["city"], city: 1, defense: 1, harborAdvance: 1 } },
+        { text: "\"I need to think about it.\"", next: "A2-CITY-DEFER", effects: { threadsVisited: ["city"] } },
+        { text: "\"The scrolls have to come first. I'm sorry.\"", next: "A2-CITY-DISMISSED", effects: { threadsVisited: ["city"], threadsCompleted: ["city"], cityDismissed: true } }
+    ]
+},
+
+"A2-CITY-HESITATION": {
+    title: "Hesitation",
+    act: 2,
+    thread: "city",
+    prose: `<p>She watches you hesitate. Her expression doesn't change.</p>
+
+<p>"That's a lot. You don't know if you can." She picks up her trowel again. "I've heard that before. Different words, same meaning. The scrolls come first. The scholars come first. The building comes first. The people who built it..." She shrugs. "We come last. Or not at all."</p>
+
+<p>Stone, mortar, press.</p>
+
+<p>"I'm not angry. This is how it's been for three hundred years. I don't know why I thought today would be different."</p>
+
+<p>She keeps working. The conversation isn't over—not quite—but something has shifted. You're running out of chances to shift it back.</p>`,
+    prompt: "How do you respond?",
+    choices: [
+        { text: "\"Wait. Fifty people. Done.\"", next: "A2-CITY-ACCEPT", effects: { threadsVisited: ["city"], threadsCompleted: ["city"], city: 1, defense: 1, harborAdvance: 1 } },
+        { text: "\"I need to think about it. I'll come back.\"", next: "A2-CITY-DEFER", effects: { threadsVisited: ["city"] } },
+        { text: "\"I'm sorry. The scrolls have to come first.\"", next: "A2-CITY-DISMISSED", effects: { threadsVisited: ["city"], threadsCompleted: ["city"], cityDismissed: true } }
+    ]
+},
+
+"A2-CITY-TERMS": {
+    title: "The Terms",
+    act: 2,
+    thread: "city",
+    prose: `<p>She sets down her trowel. This is the negotiation now—real terms, real costs.</p>
+
+<p>"Passage for fifty. Guild members and families. That's first. Non-negotiable."</p>
+
+<p>She holds up fingers as she counts. "Second: I talk to my quarter. Spread the word that the Library is asking for help—and offering something in return. First time in three hundred years. That means something. Might mean people show up when you need them."</p>
+
+<p>"Third: you tell your people about us. After this is over, whatever happens, the Library knows who built it. Knows our names. My father's name was Ptolemaios. He built the western wall. I want someone to remember that."</p>
+
+<p>She folds her arms. "That's my price. Fifty people, a chance to spread the word, and a name remembered. You can afford that. The question is whether you will."</p>`,
+    prompt: "How do you respond?",
+    choices: [
+        { text: "\"Fifty people. Done. What else can you tell us?\"", next: "A2-CITY-ACCEPT", effects: { threadsVisited: ["city"], threadsCompleted: ["city"], city: 1, defense: 1, harborAdvance: 1 } },
+        { text: "\"I need to think about it.\"", next: "A2-CITY-DEFER", effects: { threadsVisited: ["city"] } },
+        { text: "\"The scrolls have to come first. I'm sorry.\"", next: "A2-CITY-DISMISSED", effects: { threadsVisited: ["city"], threadsCompleted: ["city"], cityDismissed: true } }
+    ]
+},
+
+"A2-CITY-ACCEPT": {
+    title: "Agreement",
+    act: 2,
+    thread: "city",
+    prose: `<p>She looks at you for a long moment. Then she nods—once, sharp.</p>
+
+<p>"Done." She stands, wipes her hands. "Fifty people. I'll have names for you by tomorrow. Mostly families with children—they're the ones who need to get out first."</p>
+
+<p>She looks toward the Library's distant outline. "I'll talk to the quarter tonight. Let them know the Library remembered. Some of them won't believe it. Some of them won't care. But some..." She shrugs. "Some might show up when you need them. First time for everything."</p>
+
+<p>She turns back to you. "The service entrances. I'll draw you a map. And I'll tell you which approaches the soldiers forget to guard. Knowledge for knowledge. That's fair."</p>
+
+<p>She almost smiles. "My father would have liked this. He always said the Library should belong to the city. Maybe now it will."</p>`,
+    choices: [
+        { text: "Return to the city.", next: "A2-HUB" }
+    ]
+},
+
+"A2-CITY-DEFER": {
+    title: "Deferred",
+    act: 2,
+    thread: "city",
+    prose: `<p>She nods slowly. Goes back to work.</p>
+
+<p>"Think about it. I'll be here." Stone, mortar, press. "The harbor's changing—I can see it from the rooftops. Whatever's coming, it's coming soon. Don't think too long."</p>
+
+<p>She doesn't look up. The rhythm of her work continues.</p>
+
+<p>"You know where to find me. Same trench, same work. That's what we do. We keep building while everyone else argues about what's worth saving."</p>
+
+<p>You've learned what you came to learn. The decision remains unmade.</p>`,
+    choices: [
+        { text: "Return to the city.", next: "A2-HUB" }
+    ]
+},
+
+"A2-CITY-DISMISSED": {
+    title: "Dismissed",
+    act: 2,
+    thread: "city",
+    prose: `<p>She stops working. Sets down her trowel. Looks at you for a long moment.</p>
+
+<p>"The scrolls come first." She says it back to you, flat. "Three hundred years, and that's still the answer."</p>
+
+<p>She picks up her trowel again. Returns to the mortar. You've stopped existing.</p>
+
+<p>"I don't know why I thought today would be different."</p>
+
+<p>Stone, mortar, press. Stone, mortar, press.</p>
+
+<p>She doesn't look up again. There's nothing more to say.</p>`,
+    choices: [
+        { text: "Leave.", next: "A2-HUB" }
+    ]
+},
+
+"A2-CITY-RETURN": {
+    title: "Return to the Site",
+    act: 2,
+    thread: "city",
+    prose: `<p>Demetria is still at the site—different trench, same steady work. She sees you coming and doesn't stop, but she doesn't turn away either.</p>
+
+<p>"You're back." Stone, mortar, press. "Thought about it, have you?"</p>
+
+<p>She straightens, wiping her hands on her tunic. "Fifty people. Guild members, families. You get them out, they'll remember. Their children will remember. Might be the first time the Library ever did something for the people who built it."</p>
+
+<p>She waits. The offer hasn't changed. The question is whether you have.</p>`,
+    prompt: "How do you respond?",
+    choices: [
+        { text: "\"Fifty people. Done.\"", next: "A2-CITY-RETURN-ACCEPT", effects: { threadsCompleted: ["city"], city: 1, defense: 1, harborAdvance: 1 } },
+        { text: "\"I can't do it. I'm sorry.\"", next: "A2-CITY-FINAL", effects: { threadsCompleted: ["city"] } }
+    ]
+},
+
+"A2-CITY-RETURN-ACCEPT": {
+    title: "Agreement",
+    act: 2,
+    thread: "city",
+    prose: `<p>She nods. Sets down her trowel.</p>
+
+<p>"You came back. That's something." She stands, stretches. "Fifty people. I'll have names by tonight. And I'll talk to the quarter—let them know the Library remembered."</p>
+
+<p>She looks toward the distant outline of the Library.</p>
+
+<p>"My father's name was Ptolemaios. He built the western wall. I want someone to remember that." She turns back to you. "Now—let me tell you about the service entrances. The ones your scholars walk past without seeing."</p>
+
+<p>For the first time, she almost smiles. "Knowledge for knowledge. That's fair."</p>`,
+    choices: [
+        { text: "Return to the city.", next: "A2-HUB" }
+    ]
+},
+
+"A2-CITY-FINAL": {
+    title: "Final Refusal",
+    act: 2,
+    thread: "city",
+    prose: `<p>She nods once. Goes back to work.</p>
+
+<p>"At least you came back to say it to my face." Stone, mortar, press. "Most wouldn't bother."</p>
+
+<p>She doesn't say anything else. The rhythm of the work continues. You've been dismissed—but not with contempt. Just with the resignation of someone who expected nothing and received exactly that.</p>
+
+<p>Stone, mortar, press. Stone, mortar, press.</p>
+
+<p>You leave her to her work.</p>`,
+    choices: [
+        { text: "Return to the city.", next: "A2-HUB" }
+    ]
+},
+
+"A2-HUB": {
+    title: "The City at Night",
+    act: 2,
+    dynamic: true,
+    getProseAndChoices: function() {
+        let visitedCount = STATE.threadsVisited.length;
+        let completedCount = STATE.threadsCompleted.length;
+        let totalProgress = Math.max(completedCount, visitedCount);
+        let prose;
+        
+        // Harbor stage reflects alliances made (time committed)
+        let harborText;
+        if (STATE.harborStage === 0) {
+            harborText = `<p>The harbor is quiet—for now. You have time.</p>`;
+        } else if (STATE.harborStage === 1) {
+            harborText = `<p>The harbor has changed since you last looked. More soldiers on the docks. A merchant ship pulling out early, half-loaded. Time is passing.</p>`;
+        } else if (STATE.harborStage === 2) {
+            harborText = `<p>The harbor is tense. Military transports are unloading now—soldiers forming up on the docks. Fewer merchant ships than before. The window is narrowing.</p>`;
+        } else {
+            harborText = `<p>The harbor is closing. Checkpoints on the main roads. The last merchant ships are fleeing or being turned back. Whatever you're going to do, it needs to be soon.</p>`;
+        }
+        
+        if (totalProgress === 0) {
+            prose = `<p>The streets of Alexandria stretch before you. Somewhere in this city are the answers Theron and Hypatia need.</p>`;
+        } else if (totalProgress === 1) {
+            prose = `<p>One conversation. One perspective you hadn't considered before. But there's more to learn.</p>` + harborText;
+        } else if (totalProgress === 2) {
+            prose = `<p>Two conversations. Two different ways of seeing the Library and its crisis.</p>` + harborText;
+        } else {
+            prose = `<p>Three conversations. Three perspectives that don't quite fit together. You've learned a lot—maybe enough.</p>` + harborText;
+        }
+        
+        // Build available choices
+        let choices = [];
+        
+        // At harbor stage 3, force return to chamber
+        if (STATE.harborStage >= 3) {
+            prose += `<p><strong>You need to return to the Chamber. Now.</strong></p>`;
+            choices.push({ text: "Return to the Chamber. There's no more time.", next: "A3-01" });
+            return { prose: prose, choices: choices, prompt: "What do you do?" };
+        }
+        
+        // Network: no return needed, just intel
+        if (!STATE.threadsCompleted.includes("network")) {
+            choices.push({ text: "The harbor. Check Nephthys's information.", next: "A2-NETWORK" });
+        }
+        
+        // Miriam: show if not visited, OR if visited but no alliance
+        if (!STATE.threadsVisited.includes("library")) {
+            choices.push({ text: "The Library. Find Miriam.", next: "A2-LIBRARY" });
+        } else if (STATE.community === 0 && !STATE.threadsCompleted.includes("library")) {
+            choices.push({ text: "The Library. Return to Miriam.", next: "A2-LIBRARY-RETURN" });
+        }
+        
+        // Temple: show if not visited, OR if visited but no alliance
+        if (!STATE.threadsVisited.includes("temple")) {
+            choices.push({ text: "The Serapeum. Hear Khaemwaset's offer.", next: "A2-TEMPLE" });
+        } else if (STATE.temple === 0 && !STATE.threadsCompleted.includes("temple")) {
+            choices.push({ text: "The Serapeum. Return to Khaemwaset.", next: "A2-TEMPLE-RETURN" });
+        }
+        
+        // City: show if not visited, OR if visited but no alliance AND not dismissed
+        if (!STATE.threadsVisited.includes("city")) {
+            choices.push({ text: "The city. Find the workers.", next: "A2-CITY" });
+        } else if (STATE.city === 0 && !STATE.threadsCompleted.includes("city") && !STATE.cityDismissed) {
+            choices.push({ text: "The city. Return to Demetria.", next: "A2-CITY-RETURN" });
+        }
+        
+        choices.push({ text: "Return to the Chamber. Time to decide.", next: "A3-01" });
+        
+        return { prose: prose, choices: choices, prompt: "What do you do?" };
+    }
+},
+
+// --- ACT 3: DECISION ---
+
+"A3-01": {
+    title: "Return to the Chamber",
+    act: 3,
+    dynamic: true,
+    getProseAndChoices: function() {
+        let prose = `<p>The hidden chamber feels different now. Smaller, maybe. Or just more urgent. Theron and Hypatia are waiting—they've been waiting since you left.</p>
+
+<p>"What did you find?" Theron asks.</p>`;
+
+        // Build the report based on what player actually did
+        let reportSections = [];
+        
+        if (STATE.threadsCompleted.includes("network") || STATE.intel > 0) {
+            reportSections.push(`<p>You tell them about Nephthys and the harbor. The ships that might work for evacuation—the <em>Ibis</em>, the <em>Crocodile</em>, the Cypriot vessel. The military transports sitting in the eastern basin, waiting.</p>
+<p>"Limited options," Theron says. "But real ones. That's something."</p>`);
+        }
+        
+        if (STATE.community) {
+            reportSections.push(`<p>You tell them about Miriam. Her network—older and larger than the College's. The Septuagint already secured, but Aristobulus still at risk. Her terms accepted.</p>
+<p>Hypatia is quiet for a moment. "She's been working in the translation rooms for fifteen years. I didn't know she had—" She stops. "I should have known."</p>
+<p>"Her network complements ours," Theron says. "This helps."</p>`);
+        } else if (STATE.threadsVisited.includes("library")) {
+            reportSections.push(`<p>You tell them about Miriam. Her network, her priorities, her terms.</p>
+<p>"And?" Theron asks.</p>
+<p>"I didn't commit. Not yet."</p>
+<p>Hypatia looks troubled. "Miriam has been working in the translation rooms for fifteen years. I didn't realize she had her own... operation."</p>`);
+        }
+        
+        if (STATE.temple) {
+            reportSections.push(`<p>You tell them about Khaemwaset. The temple's vaults, the network of priests across Egypt, the protection of the god. The price: Egyptian materials returned, scholars for five years, acknowledgment.</p>
+<p>"You accepted," Hypatia says. Not a question.</p>
+<p>"I accepted."</p>
+<p>She's quiet. Theron watches her. "It's not what I would have chosen," she says finally. "But it's something. Twenty thousand scrolls in vaults that have survived centuries."</p>`);
+        } else if (STATE.threadsVisited.includes("temple")) {
+            reportSections.push(`<p>You tell them about Khaemwaset. His offer, his theory of preservation, his price.</p>
+<p>"Need outlasts prestige," Theron says slowly. "He's not wrong about that."</p>
+<p>"He's asking us to subordinate the Library to the temple," Hypatia says.</p>
+<p>"He's asking us to survive," Theron replies.</p>`);
+        }
+        
+        if (STATE.city) {
+            reportSections.push(`<p>You tell them about Demetria. Her father who built the western wall. Her daughter and the midwife. The guild's knowledge of the city—fire routes, service entrances, infrastructure. Passage for fifty in exchange for help.</p>
+<p>Hypatia is very still. "Three hundred years. And we never—" She stops.</p>
+<p>"Her people will help," you say. "First time the Library ever gave them a reason to."</p>`);
+        } else if (STATE.threadsVisited.includes("city") && !STATE.cityDismissed) {
+            reportSections.push(`<p>You tell them about Demetria. The mason whose father built part of this building. What she said about the Library—three hundred years of invisibility to the people who constructed it.</p>
+<p>Hypatia's expression changes. "She asked what the Library has ever done for the people who built it."</p>
+<p>"Yes."</p>
+<p>"And what did you tell her?"</p>
+<p>"I didn't have an answer."</p>
+<p>The silence is heavy. "Neither do I," Hypatia says quietly.</p>`);
+        } else if (STATE.cityDismissed) {
+            reportSections.push(`<p>You tell them about Demetria. What she offered. What you refused.</p>
+<p>Hypatia doesn't say anything. Theron looks at you for a long moment, then away.</p>`);
+        }
+        
+        // If player learned very little
+        if (reportSections.length === 0) {
+            reportSections.push(`<p>"Not much," you admit. "The city is tense. People are scared. But I didn't find anyone who could—"</p>
+<p>"You didn't talk to anyone," Theron finishes.</p>
+<p>"I came back."</p>
+<p>The silence is uncomfortable. Hypatia looks at Theron. Theron looks at the map.</p>`);
+        }
+        
+        prose += reportSections.join("\n");
+        
+        // Harbor status determines whether player can go back out
+        if (STATE.harborStage >= 3) {
+            prose += `
+
+<p>Before anyone can respond, there's a knock at the chamber door. A messenger—one of Theron's people, breathing hard.</p>
+<p>"The harbor's closing. Checkpoints on all the main roads. Whatever's coming—it's coming now."</p>
+<p>Theron and Hypatia exchange a look. The time for gathering information is over.</p>
+<p>"We have to decide," Hypatia says. "Now."</p>`;
+            
+            return { prose: prose, choices: null, next: "A3-02" };
+        } else {
+            // Not forced - player can choose to continue or decide
+            let harborWarning = "";
+            if (STATE.harborStage === 0) {
+                harborWarning = `
+
+<p>"The harbor is still open," Theron says. "For now. You could learn more—if you think it's worth the time."</p>`;
+            } else if (STATE.harborStage === 1) {
+                harborWarning = `
+
+<p>"The harbor is changing," Theron says. "More soldiers. Fewer merchant ships. The window is narrowing, but it's not closed yet."</p>`;
+            } else if (STATE.harborStage === 2) {
+                harborWarning = `
+
+<p>"The harbor is nearly closed," Theron says. His voice is tight. "Military transports are unloading. If you want to learn more, you'll have to be quick."</p>`;
+            }
+            
+            prose += harborWarning;
+            prose += `
+<p>Hypatia looks at you. "Is there more you need to know? Or are you ready to decide?"</p>`;
+            
+            let choices = [
+                { text: "\"I'm ready. Let's decide what we're going to do.\"", next: "A3-02" }
+            ];
+            
+            // Add options to go back out if threads remain
+            if (!STATE.threadsCompleted.includes("network") && !STATE.intel) {
+                choices.push({ text: "\"I should check the harbor situation myself.\"", next: "A2-NETWORK" });
+            }
+            
+            if (!STATE.threadsVisited.includes("library")) {
+                choices.push({ text: "\"There's someone in the Library I should talk to. Miriam.\"", next: "A2-LIBRARY" });
+            } else if (STATE.community === 0 && !STATE.threadsCompleted.includes("library")) {
+                choices.push({ text: "\"I should go back to Miriam. Reconsider her offer.\"", next: "A2-LIBRARY-RETURN" });
+            }
+            
+            if (!STATE.threadsVisited.includes("temple")) {
+                choices.push({ text: "\"I haven't heard the temple's offer yet.\"", next: "A2-TEMPLE" });
+            } else if (STATE.temple === 0 && !STATE.threadsCompleted.includes("temple")) {
+                choices.push({ text: "\"I should go back to Khaemwaset. Reconsider his terms.\"", next: "A2-TEMPLE-RETURN" });
+            }
+            
+            if (!STATE.threadsVisited.includes("city")) {
+                choices.push({ text: "\"I need to understand how the city sees us.\"", next: "A2-CITY" });
+            } else if (STATE.city === 0 && !STATE.threadsCompleted.includes("city") && !STATE.cityDismissed) {
+                choices.push({ text: "\"I should go back to Demetria. Reconsider her offer.\"", next: "A2-CITY-RETURN" });
+            }
+            
+            return { prose: prose, choices: choices, prompt: "What do you do?" };
+        }
+    }
+},
+
+"A3-02": {
+    title: "Revised Positions",
+    act: 3,
+    dynamic: true,
+    getProseAndChoices: function() {
+        let prose = `<p>The silence stretches. Theron moves to the map, then away, then back.</p>`;
+        
+        // Only mention dispersal/Miriam if player actually has community alliance or visited library
+        let mentionedDispersal = false;
+        let mentionedDefense = false;
+        
+        if (STATE.community) {
+            prose += `<p>"You were right about dispersal," Hypatia says finally. "If Miriam's network is already moving, if there are ships... fragments might be better than nothing."</p>
+<p>Theron looks at her. Something passes between them.</p>`;
+            mentionedDispersal = true;
+        } else if (STATE.threadsVisited.includes("library")) {
+            prose += `<p>"Miriam's network," Hypatia says quietly. "She's already moving her materials. With or without us."</p>
+<p>"That's dispersal happening whether we choose it or not," Theron says.</p>`;
+            mentionedDispersal = true;
+        } else if (STATE.threadsCompleted.includes("network")) {
+            prose += `<p>"The ships," Theron says. "We have options. Limited, but real."</p>`;
+            mentionedDispersal = true;
+        }
+        
+        if (STATE.city) {
+            if (mentionedDispersal) {
+                prose += `<p>"You were right about connection," Theron says. "Demetria's people. If the city saw the Library as theirs... that changes things."</p>`;
+            } else {
+                prose += `<p>"Demetria's offer," Theron says. "If her people help defend... that's something we never had before."</p>`;
+            }
+            mentionedDefense = true;
+        } else if (STATE.threadsCompleted.includes("city")) {
+            prose += `<p>"The mason," Hypatia says. "She asked what the Library has ever done for the people who built it." A pause. "I didn't have an answer."</p>`;
+            mentionedDefense = true;
+        }
+        
+        if (STATE.temple) {
+            prose += `<p>"And the temple," Hypatia adds, her voice careful. "Khaemwaset's vaults. It's not what I would have chosen. But it's something."</p>`;
+        } else if (STATE.threadsCompleted.includes("temple")) {
+            prose += `<p>"Khaemwaset's offer is still there," Theron says. "If we want it."</p>`;
+        }
+        
+        // If they learned very little
+        if (!mentionedDispersal && !mentionedDefense && STATE.threadsCompleted.length <= 1) {
+            prose += `<p>"We still don't know enough," Hypatia says. "But we're out of time to learn more."</p>
+<p>"Then we decide with what we have," Theron replies.</p>`;
+        } else {
+            prose += `<p>They're not arguing anymore. For the first time, they're looking at the same problem from different angles.</p>`;
+        }
+        
+        prose += `<p>She looks at you.</p>
+<p>"What do you think we should do?"</p>`;
+        
+        return { prose: prose, choices: null, next: "A3-03" };
+    }
+},
+
+"A3-03": {
+    title: "The Options",
+    act: 3,
+    dynamic: true,
+    getProseAndChoices: function() {
+        let prose = `<p>Theron moves to the map. "Let me lay out what we actually have."</p>
+
+<p><strong>Evacuation:</strong> Three ships. Six days of copying. Seventy thousand scrolls, if we're ruthless. The poetry waits. We save the foundations.</p>
+
+<p><strong>Defense:</strong> Rally the scholars, the guards who owe us. Fortify. Make it costly to attack. Hold as long as we can.</p>`;
+
+        if (STATE.temple) {
+            prose += `<p><strong>The Temple:</strong> You've struck a deal with Khaemwaset. Twenty thousand scrolls to his vaults. Three centuries of independence traded for survival.</p>`;
+        }
+
+        // Hybrid requires support on BOTH sides - at least 1 dispersal AND 1 defense, plus at least one alliance
+        let hasDispersalSupport = STATE.dispersal >= 1 || STATE.community;
+        let hasDefenseSupport = STATE.defense >= 1 || STATE.city;
+        let canHybrid = hasDispersalSupport && hasDefenseSupport && (STATE.community || STATE.city);
+        if (canHybrid) {
+            prose += `<p><strong>Hybrid:</strong> Defense buys time, evacuation uses it. Every hour we hold is another cartload to the ships. Difficult, but potentially more saved than either alone.</p>`;
+        }
+
+        prose += `<p>There's one more option. The one no one wants to name.</p>
+
+<p><strong>Nothing:</strong> Step back. Let it happen. Every path is loss—why choose which loss?</p>
+
+<p>"Someone has to choose," Theron says. "The decision belongs to the person with the most context. That's you."</p>`;
+
+        // Build choices dynamically
+        let choices = [
+            { text: "\"We evacuate. Save what we can. Scatter the seeds.\"", next: "A4-EVACUATE", effects: { finalChoice: "evacuate" } },
+            { text: "\"We defend. Hold the line. Make them see us.\"", next: "A4-DEFEND", effects: { finalChoice: "defend" } }
+        ];
+
+        if (STATE.temple) {
+            choices.push({ text: "\"We go to the temple. Survival at any cost.\"", next: "A4-TEMPLE", effects: { finalChoice: "temple" } });
+        }
+
+        if (canHybrid) {
+            choices.push({ text: "\"We do both. Defense buys time, evacuation uses it.\"", next: "A4-HYBRID", effects: { finalChoice: "hybrid" } });
+        }
+
+        choices.push({ text: "\"I don't choose. Every path is loss.\"", next: "A4-INACTION", effects: { finalChoice: "inaction" } });
+
+        return { prose: prose, choices: choices, prompt: "What do you choose?" };
+    }
+},
+
+// --- ACT 4: OUTCOMES ---
+
+"A4-EVACUATE": {
+    title: "The Long Night of Copying",
+    act: 4,
+    ending: true,
+    dynamic: true,
+    getProseAndChoices: function() {
+        // Intel variation - knowing harbor timing helps evacuation
+        let intelText = STATE.intel ? 
+            `<p>Nephthys's intelligence proved critical. You knew which ships were leaving when, which captains could be trusted, which routes the military wasn't watching yet. The <em>Ibis</em> left twelve hours earlier than planned—just before the first checkpoints went up.</p>
+
+<p>"You bought us a day," Theron said on the fourth night. "Maybe more. That's thousands of scrolls we wouldn't have saved otherwise."</p>` :
+            `<p>The timing was chaos. Ships left when they could, not when you planned. The <em>Crocodile</em>'s captain doubled his price when the checkpoints went up. You paid it—what choice did you have?</p>`;
+
+        let communityText = STATE.community ? 
+            `<p>Miriam's network proved its worth alongside Theron's. While the College moved scrolls to the harbor, her people moved different cargo—Aristobulus, the letters, the marginalia. The proof that Jews in Alexandria had thought and built. Her brother's contacts in Antioch were ready. Her cousin's in Cyrene. A temple of words, traveling.</p>
+
+<p>"We've been doing this longer than you," she said on the third night, not unkindly. "Let us carry what we know how to carry."</p>` : 
+            `<p>Somewhere in the Library, Miriam was running her own evacuation—her materials, her network, her priorities. You hadn't allied with her, but she hadn't waited for permission. Her people had been carrying knowledge through catastrophe for a thousand years. They didn't need the College's help.</p>`;
+
+        // What survived varies by intel + community
+        let scrollCount = STATE.intel ? "eighty thousand" : "seventy thousand";
+        let whatSurvivedText;
+        if (STATE.community && STATE.intel) {
+            whatSurvivedText = `<p>${scrollCount} scrolls through Theron's network—the extra day made the difference. Another ten thousand through Miriam's. The mathematics went to Pergamum. The Aristobulus went to Antioch. The surgical texts went to Athens. And because you had time, some of the poetry made it too. Sappho's fragments, carried on the last ship out.</p>`;
+        } else if (STATE.community) {
+            whatSurvivedText = `<p>Seventy thousand scrolls through Theron's network. Another ten thousand through Miriam's—different texts, different destinations, different priorities. The mathematics went to Pergamum. The Aristobulus went to Antioch. The surgical texts went to Athens. The letters between Alexandria and Jerusalem went to Cyrene, carried by people who understood why they mattered.</p>`;
+        } else if (STATE.intel) {
+            whatSurvivedText = `<p>${scrollCount} scrolls. The extra day Nephthys bought you meant time for the poetry—some of it, at least. Sappho's fragments made it onto the last ship. Not everything. But more than you expected.</p>`;
+        } else {
+            whatSurvivedText = `<p>Seventy thousand scrolls. That's what you saved. Most were hasty copies, context stripped away.</p>`;
+        }
+
+        let endingReflection;
+        if (STATE.community || STATE.intel) {
+            endingReflection = `<p>The flesh still burned. Most of the poetry, the histories, the conversations you'll never reconstruct. But something more than cargo made it out. Something that remembered why it mattered.</p>`;
+        } else {
+            endingReflection = `<p>The flesh burned. The poetry, the histories, the letters—the conversation across centuries. Gone.</p>
+
+<p>Sometimes you wonder if Hypatia was right. If a civilization without its poetry is really worth saving.</p>
+
+<p>You never find an answer.</p>`;
+        }
+
+        let prose = `<p>You worked for six days. Six days and six nights, while the city held its breath.</p>
+
+<p>Theron's network proved its worth. Every copyist in Alexandria received their orders. Hands cramped and bled. The scratch of pens became desperate music.</p>
+
+${intelText}
+
+<p>Mathematics went first. "Euclid can be rebuilt from fragments," Theron said. Medicine followed. Then astronomy, engineering, agriculture.</p>
+
+${(STATE.intel || STATE.community) ? `<p>The poetry waited. "We'll get to it," you said on the third night.</p>
+
+<p>You got to some of it.</p>` : `<p>The poetry waited. "We'll get to it," you said on the third night.</p>
+
+<p>"We might," Theron said.</p>
+
+<p>You didn't.</p>`}
+
+${communityText}
+
+<p>The <em>Ibis</em> left on the second day. The Cypriot followed. The <em>Crocodile</em> took the astronomy, the engineering—civilization's foundations.</p>
+
+${whatSurvivedText}
+
+<p>The Library burned on the seventh day. You watched from the harbor. The flames took the eastern wing first, then the reading rooms, then the stacks.</p>
+
+<p>Hypatia stayed. She'd helped choose what went, but she wouldn't leave. They found her body three days later. She'd been trying to reach a section that had already burned.</p>
+
+<p>You saved the foundations. The mathematics that rebuilds civilizations. The skeleton of knowledge, scattered across the Mediterranean.</p>
+
+${endingReflection}
+
+<p class="ending-label"><strong>ENDING: The Long Night of Copying</strong></p>`;
+
+        return { prose: prose, choices: null };
+    }
+},
+
+"A4-DEFEND": {
+    title: "The Stand at Alexandria",
+    act: 4,
+    ending: true,
+    dynamic: true,
+    getProseAndChoices: function() {
+        let cityText = STATE.city ? 
+            `<p>Demetria's people came. Not all of them, not with joy, but they came. They built barricades from stones they'd laid years ago. "The Library saw us first," one said. "Fair's fair."</p>` : '';
+
+        // Intel variation - knowing when the crisis would hit helped prepare
+        let intelText = STATE.intel ?
+            `<p>Nephthys's warning gave you twelve hours you wouldn't have had otherwise. Twelve hours to move the most irreplaceable texts to the inner rooms. Twelve hours to fill water barrels, position guards, send word to sympathetic officials.</p>
+
+<p>When the fire started on the second night, you were ready. The bucket chains were already organized. The evacuation routes were already clear. You lost three rooms instead of thirty.</p>` :
+            `<p>The fire started on the second night—not from the harbor. It started in the scholars' dormitory, where an oil lamp fell. By the time you saw the glow, three rooms were gone.</p>`;
+
+        // Outcome varies by intel + city
+        let outcomeText;
+        if (STATE.intel && STATE.city) {
+            outcomeText = `<p>The eastern wing burned, but only the eastern wing. Demetria's people knew where the weak points were—they'd built them. They held the fire lines while scholars carried texts to safety.</p>
+
+<p>Twenty thousand scrolls became ash. What survived wasn't random—it was chosen. The mathematical texts, the medical treatises, the astronomical charts. And because you had time, some of the poetry too.</p>`;
+        } else if (STATE.intel) {
+            outcomeText = `<p>The eastern wing burned completely. But the western wing was saved—not mostly, but entirely. The warning time made the difference. Thirty thousand scrolls became ash instead of forty.</p>
+
+<p>What survived was still partly random. But less random than it would have been.</p>`;
+        } else if (STATE.city) {
+            outcomeText = `<p>The eastern wing burned completely. The western wing was saved—mostly. Demetria's people held the line longer than anyone expected. Forty thousand scrolls became ash. What survived was determined by proximity to exits and the choices made in chaos.</p>`;
+        } else {
+            outcomeText = `<p>The eastern wing burned completely. The western wing was saved—mostly. Forty thousand scrolls became ash. What survived was random—determined by proximity to exits and pure chance.</p>`;
+        }
+
+        // Hypatia's fate varies slightly
+        let hypatiaText = STATE.intel ?
+            `<p>Hypatia died on the third day. Not in the fire—at the eastern barricade. She died with a scroll case in her arms. She'd gone back for the letters of Alexander's generals.</p>
+
+<p>The letters survived. You'd had time to copy them, the night before. She didn't know.</p>` :
+            `<p>Hypatia died on the third day. Not in the fire—at the eastern barricade. She died with a scroll case in her arms. She'd gone back for the letters of Alexander's generals.</p>
+
+<p>They didn't survive with her. The case broke when she fell.</p>`;
+
+        let prose = `<p>You held for three days.</p>
+
+${intelText}
+
+<p>You made choices in that first hour that you'll carry forever. The mathematical texts or the astronomical charts. Scrolls that had survived two centuries, grabbed by hands that had never touched them, carried through smoke.</p>
+
+<p>Hypatia was everywhere. Organizing bucket chains. Arguing with guardsmen about sight lines. Pulling texts from shelves with trancelike focus.</p>
+
+${cityText}
+
+<p>On the third day, the mob came. Not soldiers—Alexandrians who'd decided the Library was a symbol of something they hated.</p>
+
+<p>They met the scholars in the doorway. It worked—the same thing that worked fifty years ago. Teachers facing students. The mob saw faces they recognized, and something faltered.</p>
+
+<p>But not all of them.</p>
+
+${outcomeText}
+
+${hypatiaText}
+
+<p>The Library still stands. Parts of it. Enough to call it survival, if you're generous.</p>
+
+<p>Hypatia would say it was worth it. The stand, the symbol.</p>
+
+<p>You're not sure anymore what you would say.</p>
+
+<p class="ending-label"><strong>ENDING: The Stand at Alexandria</strong></p>`;
+
+        return { prose: prose, choices: null };
+    }
+},
+
+"A4-TEMPLE": {
+    title: "The Serapeum Bargain",
+    act: 4,
+    ending: true,
+    dynamic: true,
+    getProseAndChoices: function() {
+        // Intel variation - knowing timing helps prioritize the transfer
+        let transferText = STATE.intel ?
+            `<p>The transfer took four days. Nephthys's intelligence helped you prioritize—you knew how much time you had, which routes would close first. The most irreplaceable texts went up the hill first. The mathematical treatises. The unique copies. Aristobulus.</p>
+
+<p>Carts climbed to the Serapeum in careful sequence. Priests received each shipment with rituals that felt half blessing, half inventory.</p>` :
+            `<p>The transfer took four days. Carts climbing the hill to the Serapeum in desperate haste. Priests receiving each shipment with rituals that felt half blessing, half inventory.</p>
+
+<p>You didn't know how much time you had. You guessed wrong about what to prioritize.</p>`;
+
+        // What survived varies by intel
+        let survivedText = STATE.intel ?
+            `<p>Twenty-five thousand scrolls reached the Serapeum before the fire came. The extra day of warning meant time for the poetry—some of it. Sappho's fragments made it up the hill. The mathematics, the medicine, the astronomy—safe in vaults built before Alexander was born.</p>` :
+            `<p>Twenty thousand scrolls reached the Serapeum before the fire came. The mathematics, the medicine—safe in vaults built before Alexander was born. But the poetry didn't make the priority list. There wasn't time.</p>`;
+
+        // Fire outcome
+        let fireText = STATE.intel ?
+            `<p>The Library burned on the fifth night. The eastern wing was gone, and the reading rooms. Twenty-five thousand scrolls became ash—fewer than expected, because you'd known where to focus.</p>` :
+            `<p>The Library burned on the fifth night. The eastern wing was gone, and the reading rooms. Thirty thousand scrolls became ash.</p>`;
+
+        let prose = `${transferText}
+
+<p>Hypatia supervised. Her face was stone.</p>
+
+<p>"The Egyptian materials go to the inner vault," Khaemwaset said. "Separate from the Greek texts."</p>
+
+<p>"Repatriation," Hypatia said flatly.</p>
+
+<p>"Return."</p>
+
+${survivedText}
+
+${fireText}
+
+<p>What survived did so under the temple's protection. Scholars could request texts—following the temple's protocols, observing the temple's hours.</p>
+
+<p>Hypatia did not come to the Serapeum. She stayed in what remained, teaching in the ruins for twelve more years.</p>
+
+<p>"He preserved the texts," she said once. "But he killed the dream. The idea that knowledge could exist independent of power."</p>
+
+<p>The Serapeum stood for three more centuries. In the end, it burned too—destroyed by Christians.</p>
+
+<p>But that was three hundred years later.</p>
+
+<p>Whether that difference mattered depends on what you think knowledge is for.</p>
+
+<p class="ending-label"><strong>ENDING: The Serapeum Bargain</strong></p>`;
+
+        return { prose: prose, choices: null };
+    }
+},
+
+"A4-HYBRID": {
+    title: "The Coordinated Effort",
+    act: 4,
+    ending: true,
+    dynamic: true,
+    getProseAndChoices: function() {
+        let cityText = STATE.city ? 
+            `<p>Demetria's people made the difference. Building barricades in the morning, loading carts in the afternoon. "The Library saw us first. We're returning the favor."</p>` : '';
+
+        // Intel helps coordination
+        let intelText = STATE.intel ?
+            `<p>Nephthys's intelligence was the key. You knew when the crisis would peak, which routes would close, how long you had. The coordination wasn't guesswork—it was planned.</p>
+
+<p>When the runner was killed on the fourth night, you had backup systems. Another runner. A signal fire. Three hours of chaos became thirty minutes.</p>` :
+            `<p>But the coordination broke down when you needed it most. A runner was killed. For three hours, Theron didn't know what was happening at the Library.</p>`;
+
+        // Outcome varies by intel
+        let outcomeText;
+        if (STATE.intel) {
+            outcomeText = `<p>Ninety thousand scrolls saved. More than any single plan could have achieved. The mathematics, the medicine, the astronomy—and because the coordination held, some of the poetry too. Sappho's fragments made it onto the last cart.</p>
+
+<p>Thirty thousand burned. But less than half what you'd feared.</p>`;
+        } else {
+            outcomeText = `<p>In those three hours, the fire took the poetry. Sappho, Alcaeus, Pindar. A scholar named Theodoros had been copying Sappho's fragments. He got out. The copies didn't.</p>
+
+<p>Eighty-five thousand scrolls saved. More than evacuation alone. The mathematics, the medicine, the astronomy.</p>
+
+<p>But forty thousand burned. Lost in the gap between two plans.</p>`;
+        }
+
+        // Hypatia's survival and reflection
+        let reflectionText = STATE.intel ?
+            `<p>Hypatia survived. She emerged at dawn, smoke-blackened, alive.</p>
+
+<p>"We did it," she said. "Both plans. Together." She looked at the smoke still rising from the eastern wing. "Is it enough?"</p>
+
+<p>"More than either alone," you said.</p>
+
+<p>She nodded slowly. "Maybe that's the answer. Maybe it always was."</p>` :
+            `<p>Hypatia survived. She emerged at dawn, smoke-blackened, alive. The collapse had been partial.</p>
+
+<p>"We saved more than either plan alone," she said. "We lost more than if we'd focused on one. Is that victory?"</p>
+
+<p>You didn't have an answer.</p>`;
+
+        let prose = `<p>You tried to do everything. Against all odds, you almost succeeded.</p>
+
+<p>The first three days were a miracle of coordination. Hypatia's defense bought time; Theron's evacuation used it. Runners moved between the Library and harbor in constant stream. The barricades held. The carts kept moving.</p>
+
+${cityText}
+
+<p>The fire came on the fourth night. The eastern wing burned—but the defense had bought time to empty most of it. The mathematical treatises were in three cities by the time the flames reached their shelves.</p>
+
+${intelText}
+
+${outcomeText}
+
+${reflectionText}
+
+<p class="ending-label"><strong>ENDING: The Coordinated Effort</strong></p>`;
+
+        return { prose: prose, choices: null };
+    }
+},
+
+"A4-INACTION": {
+    title: "The Refusal",
+    act: 4,
+    ending: true,
+    prose: `<p>"I don't choose."</p>
+
+<p>The words fell into silence.</p>
+
+<p>"Every path is loss," you said. "Why choose which loss?"</p>
+
+<p>"There's never a right choice in moments like this," Hypatia said quietly. "There's only the choice you make."</p>
+
+<p>"Then let someone else make it."</p>
+
+<p>They looked at each other. The old argument with nowhere to go.</p>
+
+<p>"Then we're back where we started," Theron said. "You've chosen nothing. We can't afford nothing."</p>
+
+<p>They turned away. Not in anger—in necessity.</p>
+
+<p>Theron evacuated what he could—not much, without coordination. Hypatia defended what she could—not long, without support. The barricades held for a day.</p>
+
+<p>Perhaps fifteen thousand scrolls survived. Less than half what evacuation might have saved.</p>
+
+<p>But you didn't order anyone to die. You didn't play god with three centuries of human knowledge.</p>
+
+<p>The Library burned, and you watched from a distance.</p>
+
+<p>You chose not to choose. The choice was made anyway.</p>
+
+<p>Just not by you.</p>
+
+<p class="ending-label"><strong>ENDING: The Refusal</strong></p>`
+}
+
+}; // End CONTENT
+
+// ============================================
+// ENGINE
+// ============================================
+
+function initGame() {
+    updateLoadButton();
+    
+    // Check for saved game
+    if (hasSavedGame()) {
+        showContinuePrompt();
+    } else {
+        showUnit("INTRO");
+    }
+}
+
+function showUnit(unitId) {
+    const unit = CONTENT[unitId];
+    if (!unit) {
+        console.error("Unit not found:", unitId);
+        return;
+    }
+    
+    STATE.currentUnit = unitId;
+    if (unit.act) STATE.act = unit.act;
+    
+    updateStatusBar();
+    renderUnit(unit);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function renderUnit(unit) {
+    const container = document.getElementById('story-container');
+    
+    let prose, choices, prompt, next;
+    
+    // Handle dynamic content
+    if (unit.dynamic && unit.getProseAndChoices) {
+        const dynamic = unit.getProseAndChoices();
+        prose = dynamic.prose || unit.prose;
+        choices = dynamic.choices || unit.choices;
+        prompt = dynamic.prompt || unit.prompt;
+        next = dynamic.next || unit.next;
+    } else {
+        prose = unit.prose;
+        choices = unit.choices;
+        prompt = unit.prompt;
+        next = unit.next;
+    }
+    
+    let html = '';
+    
+    // Title
+    if (unit.title && !unit.isIntro) {
+        html += `<h2 class="unit-title">${unit.title}</h2>`;
+    }
+    
+    // Prose
+    html += `<div class="prose fade-in">${prose}</div>`;
+    
+    // Choices
+    if (choices && choices.length > 0) {
+        html += '<div class="choices-container fade-in">';
+        if (prompt) {
+            html += `<p class="choices-prompt">${prompt}</p>`;
+        }
+        
+        // Filter choices by condition, but preserve original indices
+        choices.forEach((choice, originalIndex) => {
+            if (choice.condition && !checkCondition(choice.condition)) {
+                return; // Skip this choice
+            }
+            html += `<button class="choice-button" data-index="${originalIndex}" onclick="selectChoiceByData(this)">${choice.text}</button>`;
+        });
+        
+        html += '</div>';
+    } else if (next) {
+        html += '<div class="choices-container fade-in">';
+        html += `<button class="continue-button" onclick="continueStory()">Continue</button>`;
+        html += '</div>';
+    }
+    
+    container.innerHTML = html;
+}
+
+function checkCondition(condition) {
+    if (condition.notCompleted) {
+        if (STATE.threadsCompleted.includes(condition.notCompleted)) {
+            return false;
+        }
+    }
+    if (condition.temple !== undefined && STATE.temple < condition.temple) return false;
+    if (condition.city !== undefined && STATE.city < condition.city) return false;
+    if (condition.community !== undefined && STATE.community < condition.community) return false;
+    return true;
+}
+
+function selectChoiceByData(button) {
+    const index = parseInt(button.getAttribute('data-index'));
+    selectChoice(index);
+}
+
+function selectChoice(index) {
+    const unit = CONTENT[STATE.currentUnit];
+    
+    let choices;
+    if (unit.dynamic && unit.getProseAndChoices) {
+        choices = unit.getProseAndChoices().choices;
+    } else {
+        choices = unit.choices;
+    }
+    
+    const choice = choices[index];
+    if (!choice) return;
+    
+    if (choice.effects) {
+        applyEffects(choice.effects);
+    }
+    
+    STATE.choices.push({
+        unit: STATE.currentUnit,
+        choice: index,
+        text: choice.text
+    });
+    
+    showUnit(choice.next);
+    
+    // Auto-save after each choice (silent)
+    saveGame(true);
+}
+
+function continueStory() {
+    const unit = CONTENT[STATE.currentUnit];
+    let next;
+    if (unit.dynamic && unit.getProseAndChoices) {
+        next = unit.getProseAndChoices().next;
+    } else {
+        next = unit.next;
+    }
+    if (next) {
+        showUnit(next);
+        saveGame(true);
+    }
+}
+
+function applyEffects(effects) {
+    if (effects.dispersal) STATE.dispersal += effects.dispersal;
+    if (effects.defense) STATE.defense += effects.defense;
+    if (effects.intel) STATE.intel += effects.intel;
+    if (effects.temple) STATE.temple = effects.temple;
+    if (effects.city) STATE.city = effects.city;
+    if (effects.community) STATE.community = effects.community;
+    if (effects.act1Alignment) STATE.act1Alignment = effects.act1Alignment;
+    if (effects.finalChoice) STATE.finalChoice = effects.finalChoice;
+    if (effects.askedHypatia) STATE.askedHypatia = true;
+    if (effects.askedTheron) STATE.askedTheron = true;
+    if (effects.harborAdvance) STATE.harborStage += effects.harborAdvance;
+    if (effects.cityDismissed) STATE.cityDismissed = true;
+    
+    if (effects.threadsStarted) {
+        effects.threadsStarted.forEach(t => {
+            if (!STATE.threadsStarted.includes(t)) STATE.threadsStarted.push(t);
+        });
+    }
+    
+    if (effects.threadsVisited) {
+        effects.threadsVisited.forEach(t => {
+            if (!STATE.threadsVisited.includes(t)) STATE.threadsVisited.push(t);
+        });
+    }
+    
+    if (effects.threadsCompleted) {
+        effects.threadsCompleted.forEach(t => {
+            if (!STATE.threadsCompleted.includes(t)) STATE.threadsCompleted.push(t);
+        });
+    }
+    
+    updateMetrics();
+}
+
+function updateStatusBar() {
+    document.getElementById('current-act').textContent = STATE.act;
+    
+    const threadStatus = document.getElementById('thread-status');
+    if (STATE.threadsCompleted.length > 0) {
+        threadStatus.innerHTML = `Threads: <strong>${STATE.threadsCompleted.length}/4</strong>`;
+    } else {
+        threadStatus.textContent = '';
+    }
+    
+    const harborLabels = ['Quiet', 'Tense', 'Closing', 'Critical', 'Crisis'];
+    document.getElementById('harbor-status').textContent = harborLabels[Math.min(STATE.harborStage, 4)];
+}
+
+function updateMetrics() {
+    document.getElementById('metric-dispersal').textContent = STATE.dispersal;
+    document.getElementById('metric-dispersal').className = 'metric-value' + (STATE.dispersal > 0 ? ' active' : '');
+    
+    document.getElementById('metric-defense').textContent = STATE.defense;
+    document.getElementById('metric-defense').className = 'metric-value' + (STATE.defense > 0 ? ' active' : '');
+    
+    document.getElementById('metric-intel').textContent = STATE.intel;
+    document.getElementById('metric-intel').className = 'metric-value' + (STATE.intel > 0 ? ' active' : '');
+    
+    const alliances = [];
+    if (STATE.temple) alliances.push('Temple');
+    if (STATE.city) alliances.push('City');
+    if (STATE.community) alliances.push('Community');
+    document.getElementById('metric-alliances').textContent = alliances.length > 0 ? alliances.join(', ') : 'None';
+}
+
+function toggleMetrics() {
+    const panel = document.getElementById('metrics-panel');
+    const toggle = document.querySelector('.debug-toggle');
+    if (panel.classList.contains('hidden')) {
+        panel.classList.remove('hidden');
+        toggle.textContent = 'Hide Stats';
+    } else {
+        panel.classList.add('hidden');
+        toggle.textContent = 'Show Stats';
+    }
+}
+
+// ============================================
+// SAVE/LOAD SYSTEM
+// ============================================
+
+const SAVE_KEY = 'alexandria-dilemma-save';
+
+function getDefaultState() {
+    return {
+        currentUnit: "INTRO",
+        act: 1,
+        dispersal: 0,
+        defense: 0,
+        intel: 0,
+        temple: 0,
+        city: 0,
+        community: 0,
+        threadsCompleted: [],
+        threadsVisited: [],
+        threadsStarted: [],
+        harborStage: 0,
+        act1Alignment: null,
+        askedHypatia: false,
+        askedTheron: false,
+        cityDismissed: false,
+        choices: []
+    };
+}
+
+function saveGame(silent = false) {
+    const saveData = {
+        state: { ...STATE },
+        timestamp: Date.now(),
+        version: 1
+    };
+    
+    try {
+        localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
+        if (!silent) showNotification('Game saved');
+        updateLoadButton();
+    } catch (e) {
+        if (!silent) showNotification('Save failed');
+        console.error('Save failed:', e);
+    }
+}
+
+function loadGame() {
+    try {
+        const saveData = JSON.parse(localStorage.getItem(SAVE_KEY));
+        if (saveData && saveData.state) {
+            Object.assign(STATE, saveData.state);
+            updateStatusBar();
+            updateMetrics();
+            showUnit(STATE.currentUnit);
+            showNotification('Game loaded');
+        }
+    } catch (e) {
+        showNotification('Load failed');
+        console.error('Load failed:', e);
+    }
+}
+
+function hasSavedGame() {
+    try {
+        const saveData = localStorage.getItem(SAVE_KEY);
+        return saveData !== null;
+    } catch (e) {
+        return false;
+    }
+}
+
+function getSaveInfo() {
+    try {
+        const saveData = JSON.parse(localStorage.getItem(SAVE_KEY));
+        if (saveData) {
+            const date = new Date(saveData.timestamp);
+            const act = saveData.state.act || 1;
+            const unit = saveData.state.currentUnit || 'INTRO';
+            return {
+                date: date.toLocaleDateString() + ' ' + date.toLocaleTimeString(),
+                act: act,
+                unit: unit
+            };
+        }
+    } catch (e) {
+        return null;
+    }
+    return null;
+}
+
+function deleteSave() {
+    try {
+        localStorage.removeItem(SAVE_KEY);
+        updateLoadButton();
+    } catch (e) {
+        console.error('Delete save failed:', e);
+    }
+}
+
+function resetState() {
+    const defaultState = getDefaultState();
+    Object.keys(defaultState).forEach(key => {
+        STATE[key] = defaultState[key];
+    });
+}
+
+function confirmRestart() {
+    if (STATE.currentUnit === 'INTRO') {
+        showNotification('Already at start');
+        return;
+    }
+    
+    if (confirm('Start a new game? Your current progress will be lost unless you save first.')) {
+        resetState();
+        updateStatusBar();
+        updateMetrics();
+        showUnit('INTRO');
+        showNotification('New game started');
+    }
+}
+
+function showNotification(message) {
+    const notification = document.getElementById('save-notification');
+    notification.textContent = message;
+    notification.classList.add('show');
+    
+    setTimeout(() => {
+        notification.classList.remove('show');
+    }, 2000);
+}
+
+function updateLoadButton() {
+    const loadBtn = document.getElementById('load-btn');
+    if (loadBtn) {
+        loadBtn.disabled = !hasSavedGame();
+    }
+}
+
+function showContinuePrompt() {
+    const container = document.getElementById('story-container');
+    const saveInfo = getSaveInfo();
+    
+    let infoText = '';
+    if (saveInfo) {
+        infoText = `<p class="save-info">Saved: ${saveInfo.date}<br>Act ${saveInfo.act}</p>`;
+    }
+    
+    container.innerHTML = `
+        <div class="continue-prompt fade-in">
+            <h2>Welcome Back</h2>
+            <p>You have a saved game in progress.</p>
+            ${infoText}
+            <div class="continue-buttons">
+                <button class="btn-continue" onclick="loadGame()">Continue</button>
+                <button class="btn-new" onclick="startNewGame()">New Game</button>
+            </div>
+        </div>
+    `;
+}
+
+function startNewGame() {
+    resetState();
+    deleteSave();
+    updateStatusBar();
+    updateMetrics();
+    showUnit('INTRO');
+}
+
+function autoSave() {
+    // Auto-save after each choice (called from selectChoice)
+    saveGame();
+}
+
+document.addEventListener('DOMContentLoaded', initGame);
+    </script>
+</body>
+</html>
