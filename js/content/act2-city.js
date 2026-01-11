@@ -3,22 +3,42 @@
  * Demetria the mason
  */
 
+import { STATE } from '../state.js';
+
 export const ACT2_CITY_CONTENT = {
 
 "A2-CITY": {
     title: "Into the City",
     act: 2,
     thread: "city",
-    prose: `<p>You leave the Library district and descend into working Alexandria. The streets narrow. The air changes—smoke from cook-fires, the smell of tanning leather, the sounds of hammers and saws and voices haggling over prices.</p>
+    dynamic: true,
+    getProseAndChoices: function() {
+        let prose = `<p>You leave the Library district and descend into working Alexandria. The streets narrow. The air changes—smoke from cook-fires, the smell of tanning leather, the sounds of hammers and saws and voices haggling over prices.</p>
 
 <p>This is the city that built the Library. The masons, the carpenters, the laborers who hauled stone and mixed mortar. Three hundred years of work, and most of them have never been inside.</p>
 
 <p>Theron mentioned a mason—Demetria. "She knows the building's infrastructure. Service routes, weak points, things the scholars never think about. Find her at the guild hall or one of the construction sites in the western quarter."</p>
 
-<p>You ask around. A carpenter points you toward a site near the old wall. "She's been working foundations there. Look for the woman who doesn't stop."</p>`,
-    choices: [
-        { text: "Find the construction site.", next: "A2-CITY-ENCOUNTER" }
-    ]
+<p>You ask around. A carpenter points you toward a site near the old wall. "She's been working foundations there. Look for the woman who doesn't stop."</p>`;
+
+        // Add Kyros reaction if he's with the player
+        if (STATE.kyrosJoined) {
+            prose += `
+
+<p>Kyros slows as you approach the construction site. His eyes move across the work in progress—the foundation stones, the careful alignment, the rhythm of labor.</p>
+
+<p>"I know this," he says quietly. Not to you—to himself. "My father's sites looked like this."</p>
+
+<p>He's standing differently. His shoulders have shifted, his hands have moved. For a moment, he doesn't look like a junior scholar. He looks like a tradesman's son who wandered into the wrong story.</p>`;
+        }
+
+        return {
+            prose: prose,
+            choices: [
+                { text: "Find the construction site.", next: "A2-CITY-ENCOUNTER" }
+            ]
+        };
+    }
 },
 
 "A2-CITY-ENCOUNTER": {
@@ -155,7 +175,9 @@ export const ACT2_CITY_CONTENT = {
     title: "The Challenge",
     act: 2,
     thread: "city",
-    prose: `<p>She stops working. Sets down her trowel. When she speaks, her voice is flat.</p>
+    dynamic: true,
+    getProseAndChoices: function() {
+        let prose = `<p>She stops working. Sets down her trowel. When she speaks, her voice is flat.</p>
 
 <p>"The Library benefits everyone. Knowledge is—" She waits. "Go on. Finish the sentence. I want to hear you say it."</p>
 
@@ -169,12 +191,80 @@ export const ACT2_CITY_CONTENT = {
 
 <p>She looks up at you.</p>
 
-<p>"My daughter runs now. Not well, but she runs. The scroll didn't come to my house. The midwife did."</p>`,
+<p>"My daughter runs now. Not well, but she runs. The scroll didn't come to my house. The midwife did."</p>`;
+
+        let choices;
+
+        // If Kyros is present, he wants to respond
+        if (STATE.kyrosJoined) {
+            prose += `
+
+<p>Kyros stirs beside you. You can see it in his face—he wants to speak. This touches something in him.</p>`;
+
+            choices = [
+                { text: "Nod to Kyros. Let him respond.", next: "A2-CITY-KYROS-SPEAKS", effects: { kyrosDemetriaEngaged: true } },
+                { text: "Catch Kyros's eye. A slight shake of your head.", next: "A2-CITY-KYROS-SILENCED", effects: { kyrosDemetriaSilenced: true, kyrosSilencedCount: 1, kyrosConfidence: "low" } },
+                { text: "\"I... don't have an answer for that.\"", next: "A2-CITY-NO-ANSWER" }
+            ];
+        } else {
+            choices = [
+                { text: "\"I... don't have an answer for that.\"", next: "A2-CITY-NO-ANSWER" },
+                { text: "\"What would change your mind about helping?\"", next: "A2-CITY-WHAT-WOULD-IT-TAKE" },
+                { text: "\"You know things that could help save what's inside.\"", next: "A2-CITY-FIRE" }
+            ];
+        }
+
+        return { prose: prose, choices: choices, prompt: "How do you respond?" };
+    }
+},
+
+"A2-CITY-KYROS-SPEAKS": {
+    title: "Kyros Speaks",
+    act: 2,
+    thread: "city",
+    prose: `<p>"That's what I mean—that's exactly what I mean." Kyros steps forward before you can stop him. "The midwife learned from her mother. Knowledge passed down, used, lived. Why can't the Library be like that?"</p>
+
+<p>Demetria looks at him. Really looks—seeing the calloused hands, the Cypriot accent, the clothes that are too fine for where he came from and too plain for where he is.</p>
+
+<p>"You're not from here," she says.</p>
+
+<p>"Kition. My father builds—built—" He catches himself. "Ships."</p>
+
+<p>"And you left." It's not a question.</p>
+
+<p>"I—" He falters. "Yes."</p>
+
+<p>Demetria picks up her trowel. Stone, mortar, press. "You left your father to come here. To copy scrolls that no one in Kition will ever read." Stone, mortar, press. "And now you want to tell me what the Library should be."</p>
+
+<p>"That's not—" But he doesn't finish. He doesn't have an answer.</p>
+
+<p>Demetria doesn't look up. "I'm not angry with you. You're young. You believe things." Stone, mortar, press. "But belief doesn't feed my daughter. The midwife did. You understand?"</p>`,
     prompt: "How do you respond?",
     choices: [
-        { text: "\"I... don't have an answer for that.\"", next: "A2-CITY-NO-ANSWER" },
         { text: "\"What would change your mind about helping?\"", next: "A2-CITY-WHAT-WOULD-IT-TAKE" },
-        { text: "\"You know things that could help save what's inside.\"", next: "A2-CITY-FIRE" }
+        { text: "\"You know things that could help save what's inside.\"", next: "A2-CITY-FIRE" },
+        { text: "\"I... don't have an answer for that.\"", next: "A2-CITY-NO-ANSWER" }
+    ]
+},
+
+"A2-CITY-KYROS-SILENCED": {
+    title: "Kyros Silenced",
+    act: 2,
+    thread: "city",
+    prose: `<p>You catch Kyros's eye before he can speak. A slight shake of your head.</p>
+
+<p>He stops. His mouth closes. He steps back.</p>
+
+<p>For the rest of the conversation, he's silent. Watching. His hands have curled into fists at his sides.</p>
+
+<p>Demetria notices the exchange but says nothing. She picks up her trowel again. Stone, mortar, press.</p>
+
+<p>"No answer, then." She doesn't sound surprised. "Three hundred years, and no one from that building has ever had an answer."</p>`,
+    prompt: "How do you respond?",
+    choices: [
+        { text: "\"What would change your mind about helping?\"", next: "A2-CITY-WHAT-WOULD-IT-TAKE" },
+        { text: "\"You know things that could help save what's inside.\"", next: "A2-CITY-FIRE" },
+        { text: "\"I... don't have an answer for that.\"", next: "A2-CITY-NO-ANSWER" }
     ]
 },
 
@@ -390,7 +480,9 @@ export const ACT2_CITY_CONTENT = {
     title: "Agreement",
     act: 2,
     thread: "city",
-    prose: `<p>She looks at you for a long moment. Then she nods—once, sharp.</p>
+    dynamic: true,
+    getProseAndChoices: function() {
+        let prose = `<p>She looks at you for a long moment. Then she nods—once, sharp.</p>
 
 <p>"Done." She stands, wipes her hands. "Fifty people. I'll have names for you by tomorrow. Mostly families with children—they're the ones who need to get out first."</p>
 
@@ -398,17 +490,57 @@ export const ACT2_CITY_CONTENT = {
 
 <p>She turns back to you. "The service entrances. I'll draw you a map. And I'll tell you which approaches the soldiers forget to guard. Knowledge for knowledge. That's fair."</p>
 
-<p>She almost smiles. "My father would have liked this. He always said the Library should belong to the city. Maybe now it will."</p>`,
-    choices: [
-        { text: "Return to the city.", next: "A2-HUB" }
-    ]
+<p>She almost smiles. "My father would have liked this. He always said the Library should belong to the city. Maybe now it will."</p>`;
+
+        // Add Kyros processing if he's present
+        if (STATE.kyrosJoined) {
+            if (STATE.kyrosDemetriaEngaged) {
+                prose += `
+
+<p>As you leave, Kyros is quiet. Finally he speaks.</p>
+
+<p>"She didn't hate me." He says it softly. "That would have been easier. She just... didn't need anything I had to offer."</p>
+
+<p>He touches the scroll case at his side.</p>
+
+<p>"My father would have understood her. They would have—" He stops. "I don't know what I'm trying to say."</p>
+
+<p>He's quiet for a moment. Then, softer: "She's right that I left. She's right that the scrolls won't reach Kition. But that doesn't mean they don't matter. It can't mean that."</p>`;
+            } else if (STATE.kyrosDemetriaSilenced) {
+                prose += `
+
+<p>Kyros doesn't speak until you're well away from the construction site. When he does, his voice is flat.</p>
+
+<p>"You made me stand there." He's not looking at you. "You made me listen to her say none of it matters, and I couldn't—"</p>
+
+<p>He doesn't finish.</p>
+
+<p>"Was that strategy? Diplomacy?" He finally meets your eyes. "Or did you just not want to hear what I had to say?"</p>`;
+            } else {
+                prose += `
+
+<p>Kyros is quiet as you leave the construction site.</p>
+
+<p>"She sees the Library differently than I do," he says finally. "From outside. Three hundred years of invisibility." He shakes his head. "I never thought about it that way."</p>`;
+            }
+        }
+
+        return {
+            prose: prose,
+            choices: [
+                { text: "Return to the city.", next: "A2-HUB" }
+            ]
+        };
+    }
 },
 
 "A2-CITY-DEFER": {
     title: "Deferred",
     act: 2,
     thread: "city",
-    prose: `<p>She nods slowly. Goes back to work.</p>
+    dynamic: true,
+    getProseAndChoices: function() {
+        let prose = `<p>She nods slowly. Goes back to work.</p>
 
 <p>"Think about it. I'll be here." Stone, mortar, press. "The harbor's changing—I can see it from the rooftops. Whatever's coming, it's coming soon. Don't think too long."</p>
 
@@ -416,17 +548,41 @@ export const ACT2_CITY_CONTENT = {
 
 <p>"You know where to find me. Same trench, same work. That's what we do. We keep building while everyone else argues about what's worth saving."</p>
 
-<p>You've learned what you came to learn. The decision remains unmade.</p>`,
-    choices: [
-        { text: "Return to the city.", next: "A2-HUB" }
-    ]
+<p>You've learned what you came to learn. The decision remains unmade.</p>`;
+
+        // Add Kyros processing if he's present
+        if (STATE.kyrosJoined) {
+            if (STATE.kyrosDemetriaEngaged) {
+                prose += `
+
+<p>As you leave, Kyros touches the scroll case at his side.</p>
+
+<p>"She's not wrong," he says quietly. "About any of it. The Library hasn't reached people like her. Like my father." He pauses. "But that doesn't mean it couldn't. That doesn't mean we shouldn't try."</p>`;
+            } else if (STATE.kyrosDemetriaSilenced) {
+                prose += `
+
+<p>Kyros walks beside you in silence. His jaw is tight.</p>
+
+<p>"You didn't let me speak," he says finally. "I had something to say, and you—" He stops himself. "Never mind. It probably wouldn't have mattered anyway."</p>`;
+            }
+        }
+
+        return {
+            prose: prose,
+            choices: [
+                { text: "Return to the city.", next: "A2-HUB" }
+            ]
+        };
+    }
 },
 
 "A2-CITY-DISMISSED": {
     title: "Dismissed",
     act: 2,
     thread: "city",
-    prose: `<p>She stops working. Sets down her trowel. Looks at you for a long moment.</p>
+    dynamic: true,
+    getProseAndChoices: function() {
+        let prose = `<p>She stops working. Sets down her trowel. Looks at you for a long moment.</p>
 
 <p>"The scrolls come first." She says it back to you, flat. "Three hundred years, and that's still the answer."</p>
 
@@ -436,10 +592,36 @@ export const ACT2_CITY_CONTENT = {
 
 <p>Stone, mortar, press. Stone, mortar, press.</p>
 
-<p>She doesn't look up again. There's nothing more to say.</p>`,
-    choices: [
-        { text: "Leave.", next: "A2-HUB" }
-    ]
+<p>She doesn't look up again. There's nothing more to say.</p>`;
+
+        // Add Kyros processing if he's present
+        if (STATE.kyrosJoined) {
+            if (STATE.kyrosDemetriaEngaged) {
+                prose += `
+
+<p>Kyros follows you away from the site. He doesn't speak for a long time.</p>
+
+<p>"You chose the scrolls," he says finally. His voice is strange—not angry, not sad. Something else. "Over fifty people. Over her father's memory."</p>
+
+<p>He touches the scroll case. "I came here for the poetry. For Sappho. But if saving Sappho means—" He stops. "I don't know anymore. I don't know what I believe."</p>`;
+            } else if (STATE.kyrosDemetriaSilenced) {
+                prose += `
+
+<p>Kyros is silent as you leave. His silence is different now—heavier.</p>
+
+<p>"You wouldn't let me speak," he says finally, "and then you told her the scrolls come first." A pause. "Maybe you were right to silence me. Maybe I would have said something that made it worse."</p>
+
+<p>He doesn't sound convinced.</p>`;
+            }
+        }
+
+        return {
+            prose: prose,
+            choices: [
+                { text: "Leave.", next: "A2-HUB" }
+            ]
+        };
+    }
 },
 
 "A2-CITY-RETURN": {
@@ -464,7 +646,9 @@ export const ACT2_CITY_CONTENT = {
     title: "Agreement",
     act: 2,
     thread: "city",
-    prose: `<p>She nods. Sets down her trowel.</p>
+    dynamic: true,
+    getProseAndChoices: function() {
+        let prose = `<p>She nods. Sets down her trowel.</p>
 
 <p>"You came back. That's something." She stands, stretches. "Fifty people. I'll have names by tonight. And I'll talk to the quarter—let them know the Library remembered."</p>
 
@@ -472,17 +656,33 @@ export const ACT2_CITY_CONTENT = {
 
 <p>"My father's name was Ptolemaios. He built the western wall. I want someone to remember that." She turns back to you. "Now—let me tell you about the service entrances. The ones your scholars walk past without seeing."</p>
 
-<p>For the first time, she almost smiles. "Knowledge for knowledge. That's fair."</p>`,
-    choices: [
-        { text: "Return to the city.", next: "A2-HUB" }
-    ]
+<p>For the first time, she almost smiles. "Knowledge for knowledge. That's fair."</p>`;
+
+        // Add Kyros processing if he's present
+        if (STATE.kyrosJoined) {
+            prose += `
+
+<p>As you leave, Kyros is quiet for a moment. Then:</p>
+
+<p>"You came back for her. That matters." He touches the scroll case. "Maybe that's what the Library should have been all along. Not just collecting knowledge—going back for people."</p>`;
+        }
+
+        return {
+            prose: prose,
+            choices: [
+                { text: "Return to the city.", next: "A2-HUB" }
+            ]
+        };
+    }
 },
 
 "A2-CITY-FINAL": {
     title: "Final Refusal",
     act: 2,
     thread: "city",
-    prose: `<p>She nods once. Goes back to work.</p>
+    dynamic: true,
+    getProseAndChoices: function() {
+        let prose = `<p>She nods once. Goes back to work.</p>
 
 <p>"At least you came back to say it to my face." Stone, mortar, press. "Most wouldn't bother."</p>
 
@@ -490,10 +690,24 @@ export const ACT2_CITY_CONTENT = {
 
 <p>Stone, mortar, press. Stone, mortar, press.</p>
 
-<p>You leave her to her work.</p>`,
-    choices: [
-        { text: "Return to the city.", next: "A2-HUB" }
-    ]
+<p>You leave her to her work.</p>`;
+
+        // Add Kyros processing if he's present
+        if (STATE.kyrosJoined) {
+            prose += `
+
+<p>Kyros walks beside you in silence. When he finally speaks, his voice is tired.</p>
+
+<p>"You came back to refuse her." A pause. "I suppose that's honest. But it doesn't feel like honesty. It feels like—" He shakes his head. "I don't know what it feels like."</p>`;
+        }
+
+        return {
+            prose: prose,
+            choices: [
+                { text: "Return to the city.", next: "A2-HUB" }
+            ]
+        };
+    }
 }
 
 };
