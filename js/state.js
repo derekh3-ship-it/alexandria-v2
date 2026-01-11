@@ -21,7 +21,19 @@ export const DEFAULT_STATE = {
     askedHypatia: false,
     askedTheron: false,
     cityDismissed: false,
-    choices: []
+    choices: [],
+    // Kyros companion state
+    kyrosJoined: false,
+    kyrosPickupTiming: null, // "early" | "late" | "never"
+    kyrosRelationship: "neutral", // "positive" | "neutral" | "guarded"
+    kyrosConfidence: "high", // "high" | "medium" | "low"
+    kyrosSilencedCount: 0,
+    kyrosPoetryDiscussed: false,
+    kyrosFamilyDiscussed: false,
+    kyrosDemetriaEngaged: false,
+    kyrosDemetriaSilenced: false,
+    kyrosSapphoDefense: false,
+    kyrosMiriamConnection: false
 };
 
 // Current game state (mutable)
@@ -58,6 +70,19 @@ export function applyEffects(effects) {
     if (effects.harborAdvance) STATE.harborStage += effects.harborAdvance;
     if (effects.cityDismissed) STATE.cityDismissed = true;
 
+    // Kyros companion effects
+    if (effects.kyrosJoined) STATE.kyrosJoined = true;
+    if (effects.kyrosPickupTiming) STATE.kyrosPickupTiming = effects.kyrosPickupTiming;
+    if (effects.kyrosRelationship) STATE.kyrosRelationship = effects.kyrosRelationship;
+    if (effects.kyrosConfidence) STATE.kyrosConfidence = effects.kyrosConfidence;
+    if (effects.kyrosSilencedCount) STATE.kyrosSilencedCount += effects.kyrosSilencedCount;
+    if (effects.kyrosPoetryDiscussed) STATE.kyrosPoetryDiscussed = true;
+    if (effects.kyrosFamilyDiscussed) STATE.kyrosFamilyDiscussed = true;
+    if (effects.kyrosDemetriaEngaged) STATE.kyrosDemetriaEngaged = true;
+    if (effects.kyrosDemetriaSilenced) STATE.kyrosDemetriaSilenced = true;
+    if (effects.kyrosSapphoDefense) STATE.kyrosSapphoDefense = true;
+    if (effects.kyrosMiriamConnection) STATE.kyrosMiriamConnection = true;
+
     if (effects.threadsStarted) {
         effects.threadsStarted.forEach(t => {
             if (!STATE.threadsStarted.includes(t)) STATE.threadsStarted.push(t);
@@ -91,6 +116,8 @@ export function checkCondition(condition) {
     if (condition.temple !== undefined && STATE.temple < condition.temple) return false;
     if (condition.city !== undefined && STATE.city < condition.city) return false;
     if (condition.community !== undefined && STATE.community < condition.community) return false;
+    if (condition.kyrosJoined !== undefined && STATE.kyrosJoined !== condition.kyrosJoined) return false;
+    if (condition.kyrosConfidence !== undefined && STATE.kyrosConfidence !== condition.kyrosConfidence) return false;
     return true;
 }
 

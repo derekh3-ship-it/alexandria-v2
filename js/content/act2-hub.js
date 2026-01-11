@@ -39,6 +39,17 @@ export const ACT2_HUB_CONTENT = {
             prose = `<p>Three conversations. Three perspectives that don't quite fit together. You've learned a lot—maybe enough.</p>` + harborText;
         }
 
+        // Add Kyros companion text if he's with the player
+        if (STATE.kyrosJoined) {
+            prose += `<p>Kyros walks beside you, the scroll case with his Sappho fragment never far from his side. He's watching the city with new eyes—seeing it differently after everything you've witnessed together.</p>`;
+        } else if (STATE.threadsStarted.includes("kyros") && !STATE.kyrosJoined) {
+            // Reminder if player started but didn't finish Kyros pickup
+            prose += `<p><em>Theron mentioned a young scholar—Kyros, in the eastern colonnade. He's probably still waiting.</em></p>`;
+        } else if (!STATE.kyrosJoined && totalProgress > 0) {
+            // Gentle reminder if player has done other threads but not picked up Kyros
+            prose += `<p><em>You remember Theron's mention of a young Cypriot scholar. He might still be in the eastern colonnade.</em></p>`;
+        }
+
         // Build available choices
         let choices = [];
 
@@ -47,6 +58,11 @@ export const ACT2_HUB_CONTENT = {
             prose += `<p><strong>You need to return to the Chamber. Now.</strong></p>`;
             choices.push({ text: "Return to the Chamber. There's no more time.", next: "A3-01" });
             return { prose: prose, choices: choices, prompt: "What do you do?" };
+        }
+
+        // Kyros: show if not joined yet
+        if (!STATE.kyrosJoined) {
+            choices.push({ text: "The eastern colonnade. Find Kyros.", next: "A2-KYROS-PICKUP" });
         }
 
         // Network: no return needed, just intel

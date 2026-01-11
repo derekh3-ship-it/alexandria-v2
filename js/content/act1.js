@@ -429,11 +429,18 @@ export const ACT1_CONTENT = {
 
 <p>Hypatia adds: "The Library itself—there's a translator named Miriam. Hebrew and Greek. She has her own networks, her own priorities. And the city—the workers, the guilds. The people who see us from outside."</p>
 
+<p>Theron pauses, something flickering across his face.</p>
+
+<p>"One more thing. There's a young scholar—Cypriot, works in the copying rooms. He came to me last night, asked if there was anything he could do." He glances at Hypatia. "Reminded me of myself at that age. Too much hope, not enough experience. But he knows the Library's layout, knows some of the staff, and he's willing to take risks."</p>
+
+<p>"Find him before you do anything else. Eastern colonnade, near the astronomical texts. His name is Kyros."</p>
+
 <p>"Find out what you can," Theron says. "Then come back here. We'll still be arguing—" a glance at Hypatia, almost a smile "—but at least we'll have something to argue about."</p>
 
 <p>"Choose where to start," Hypatia says. "You can visit more than one, but time matters. The harbor will tell us how much time we have."</p>`,
     prompt: "Where do you go first?",
     choices: [
+        { text: "Find Kyros first. The eastern colonnade.", next: "A2-KYROS-PICKUP", effects: { threadsStarted: ["kyros"] } },
         { text: "The harbor. Find Nephthys.", next: "A2-NETWORK", effects: { threadsStarted: ["network"] } },
         { text: "The Library. Find Miriam.", next: "A2-LIBRARY", effects: { threadsStarted: ["library"] } },
         { text: "The Serapeum. Find Khaemwaset.", next: "A2-TEMPLE", effects: { threadsStarted: ["temple"] } },

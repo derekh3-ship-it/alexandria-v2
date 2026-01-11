@@ -12,9 +12,14 @@ export const ACT3_CONTENT = {
     act: 3,
     dynamic: true,
     getProseAndChoices: function() {
-        let prose = `<p>The hidden chamber feels different now. Smaller, maybe. Or just more urgent. Theron and Hypatia are waiting—they've been waiting since you left.</p>
+        let prose = `<p>The hidden chamber feels different now. Smaller, maybe. Or just more urgent. Theron and Hypatia are waiting—they've been waiting since you left.</p>`;
 
-<p>"What did you find?" Theron asks.</p>`;
+        // Add Kyros if he joined
+        if (STATE.kyrosJoined) {
+            prose += `<p>Kyros enters behind you, his scholar's robes dusty from the night's travels. Theron nods at him—recognition, perhaps approval. Hypatia studies him for a moment, then turns her attention back to you.</p>`;
+        }
+
+        prose += `<p>"What did you find?" Theron asks.</p>`;
 
         // Build the report based on what player actually did
         let reportSections = [];
@@ -72,6 +77,13 @@ export const ACT3_CONTENT = {
         }
 
         prose += reportSections.join("\n");
+
+        // Add note about Kyros if he never joined
+        if (!STATE.kyrosJoined) {
+            prose += `<p>Theron glances at the door. "The young Cypriot I mentioned—Kyros. Did you find him?"</p>
+<p>You shake your head. "There wasn't time."</p>
+<p>"No one saw him after the first night," Theron says quietly. "He might have made it onto a ship. He might not have."</p>`;
+        }
 
         // Harbor status determines whether player can go back out
         if (STATE.harborStage >= 3) {
@@ -221,6 +233,42 @@ export const ACT3_CONTENT = {
 <p><strong>Nothing:</strong> Step back. Let it happen. Every path is loss—why choose which loss?</p>
 
 <p>"Someone has to choose," Theron says. "The decision belongs to the person with the most context. That's you."</p>`;
+
+        // Add Kyros's input if he joined
+        if (STATE.kyrosJoined) {
+            if (STATE.kyrosSilencedCount >= 2) {
+                // Repeatedly silenced - withdrawn
+                prose += `<p>Kyros stands apart. He's learned not to speak unless spoken to.</p>
+
+<p>When you look at him, he shakes his head slightly.</p>
+
+<p>"You don't want my opinion. You've made that clear." There's no bitterness in it—or if there is, it's buried deep. "I'll do what you tell me. That's what I'm here for."</p>`;
+            } else if (STATE.kyrosConfidence === "low" || STATE.kyrosDemetriaSilenced) {
+                // Shaken but present
+                prose += `<p>Kyros is quiet. The night has changed him—you can see it in the set of his shoulders, the way he holds the scroll case.</p>
+
+<p>"I had an opinion when this started," he says finally. "I was sure. Now I'm not sure of anything, except that people are going to lose something tonight, no matter what we choose."</p>
+
+<p>He looks at you. "But you're the one who has to decide. I'll follow wherever you lead."</p>`;
+            } else if (STATE.kyrosMiriamConnection) {
+                // Connected with Miriam - favors carrying
+                prose += `<p>Kyros speaks up. "Miriam said the crossing is worth it, even with what's lost." He touches the scroll case at his side. "Carrying is better than keeping. Even if carrying means losing."</p>
+
+<p>He pauses. "I think that's true for more than translation. Scatter the seeds. Let them find new soil."</p>`;
+            } else if (STATE.kyrosDemetriaEngaged) {
+                // Engaged with Demetria - more conflicted
+                prose += `<p>"Evacuation saves the most. Defense saves the symbol. The temple saves by surrendering." Kyros counts the options on his fingers. "I don't know which is right. I know which one lets me live with myself."</p>
+
+<p>"Which?"</p>
+
+<p>"The one where I can say I tried. Even if I failed. Even if it was stupid." He almost smiles. "The one where the poetry doesn't wait."</p>`;
+            } else {
+                // Default - hopeful but uncertain
+                prose += `<p>Kyros looks at the map, then at you. "I came here because I believed words could survive anything. Could reach anyone." He touches his scroll case. "Tonight will tell me if I was right."</p>
+
+<p>"Whatever you choose—I'm with you. I just want to help save something."</p>`;
+            }
+        }
 
         // Build choices dynamically
         let choices = [
