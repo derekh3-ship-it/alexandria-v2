@@ -26,6 +26,21 @@ export const ACT4_CONTENT = {
 <p>"We've been doing this longer than you," she said on the third night, not unkindly. "Let us carry what we know how to carry."</p>` :
             `<p>Somewhere in the Library, Miriam was running her own evacuation—her materials, her network, her priorities. You hadn't allied with her, but she hadn't waited for permission. Her people had been carrying knowledge through catastrophe for a thousand years. They didn't need the College's help.</p>`;
 
+        // Kyros's fate in evacuation ending
+        let kyrosText = "";
+        if (STATE.kyrosJoined) {
+            if (STATE.kyrosMiriamConnection) {
+                // Joins the Invisible College or Miriam's network
+                kyrosText = `<p>Kyros went to Pergamum with the first shipment. Theron's network needed someone who could talk to ship captains, who understood how cargo moved. "I know why it matters now," he told you before boarding. "Not the building. The carrying." He took three copies of Sappho with him. By the time you heard from him again, there were twelve.</p>`;
+            } else if (STATE.kyrosSilencedCount >= 2 || STATE.kyrosConfidence === "low") {
+                // Returns to Cyprus
+                kyrosText = `<p>Kyros left on the Cypriot vessel—not to Pergamum with the scrolls, but east, toward home. "I need to see my father," he said. "I need to explain." You never learned whether he found the words. But the fragment of Sappho went with him. At least that much survived.</p>`;
+            } else {
+                // Default - joins the network
+                kyrosText = `<p>Kyros proved invaluable at the harbor. He knew how captains thought, what mattered to them. His father's trade, put to new purpose. He went to Athens with the second convoy, carrying a cargo of astronomical texts and one fragment of Sappho he wouldn't let out of his sight.</p>`;
+            }
+        }
+
         // What survived varies by intel + community
         let scrollCount = STATE.intel ? "eighty thousand" : "seventy thousand";
         let whatSurvivedText;
@@ -67,6 +82,8 @@ ${(STATE.intel || STATE.community) ? `<p>The poetry waited. "We'll get to it," y
 <p>You didn't.</p>`}
 
 ${communityText}
+
+${kyrosText}
 
 <p>The <em>Ibis</em> left on the second day. The Cypriot followed. The <em>Crocodile</em> took the astronomy, the engineering—civilization's foundations.</p>
 
@@ -127,6 +144,27 @@ ${endingReflection}
 
 <p>They didn't survive with her. The case broke when she fell.</p>`;
 
+        // Kyros's fate in defend ending
+        let kyrosText = "";
+        if (STATE.kyrosJoined) {
+            if (STATE.kyrosDemetriaEngaged && STATE.kyrosConfidence !== "low") {
+                // Dies defending - made peace with his choice
+                kyrosText = `<p>They found Kyros two days later, in the mathematics section. He'd been trying to reach the poetry—the corridor had already collapsed. The scroll case was still under his arm. Empty. He'd gotten the Sappho out before going back for more.</p>
+
+<p>A shipwright's son from Kition. He died trying to save something that mattered to him. The fragment of Sappho he'd carried across the sea—that survived. Someone found it in the rubble, recognized what it was.</p>`;
+            } else if (STATE.kyrosSilencedCount >= 2) {
+                // Leaves - feels excluded
+                kyrosText = `<p>Kyros wasn't at the barricades. You looked for him in the chaos, but he was gone. Later, you heard he'd slipped out through the service entrance on the first night. "He said something about Cyprus," one of the junior copyists told you. "About going home."</p>
+
+<p>His scroll case went with him. At least that much of Sappho survived.</p>`;
+            } else {
+                // Survives - helps with defense
+                kyrosText = `<p>Kyros survived. He'd been in the western wing when the worst of the fighting happened—carrying texts to safety, organizing the junior staff. His hands were burned, his voice hoarse from smoke.</p>
+
+<p>"I got some of the poetry out," he said afterward. "Not all of it. But some." He held up the scroll case. "Sappho, at least. She's survived worse than this."</p>`;
+            }
+        }
+
         let prose = `<p>You held for three days.</p>
 
 ${intelText}
@@ -146,6 +184,8 @@ ${cityText}
 ${outcomeText}
 
 ${hypatiaText}
+
+${kyrosText}
 
 <p>The Library still stands. Parts of it. Enough to call it survival, if you're generous.</p>
 
@@ -184,6 +224,24 @@ ${hypatiaText}
             `<p>The Library burned on the fifth night. The eastern wing was gone, and the reading rooms. Twenty-five thousand scrolls became ash—fewer than expected, because you'd known where to focus.</p>` :
             `<p>The Library burned on the fifth night. The eastern wing was gone, and the reading rooms. Thirty thousand scrolls became ash.</p>`;
 
+        // Kyros's fate in temple ending
+        let kyrosText = "";
+        if (STATE.kyrosJoined) {
+            if (STATE.kyrosSapphoDefense) {
+                // Conflicted - he defended poetry, now it's subordinate to temple
+                kyrosText = `<p>Kyros helped with the transfer, but something in him had gone quiet. He'd argued that poetry was need, not prestige. Now it sat in temple vaults, accessed by temple protocols.</p>
+
+<p>"Is this what I came here for?" he asked once. You didn't have an answer. Neither did he.</p>
+
+<p>He stayed in Alexandria for a year, then left for Pergamum. "Maybe there's still a Library there," he said. "One that belongs to everyone."</p>`;
+            } else {
+                // Default - accepts the compromise
+                kyrosText = `<p>Kyros worked the transfer lines, his shipwright's hands useful for once. The fragment of Sappho made it up the hill—he carried it himself, wouldn't trust it to the carts.</p>
+
+<p>"It's safe," he said afterward. "That's something." He didn't sound convinced. But the poetry survived, even if it now lived under a different roof.</p>`;
+            }
+        }
+
         let prose = `${transferText}
 
 <p>Hypatia supervised. Her face was stone.</p>
@@ -197,6 +255,8 @@ ${hypatiaText}
 ${survivedText}
 
 ${fireText}
+
+${kyrosText}
 
 <p>What survived did so under the temple's protection. Scholars could request texts—following the temple's protocols, observing the temple's hours.</p>
 
@@ -261,6 +321,29 @@ ${fireText}
 
 <p>You didn't have an answer.</p>`;
 
+        // Kyros's fate in hybrid ending
+        let kyrosText = "";
+        if (STATE.kyrosJoined) {
+            if (STATE.kyrosMiriamConnection && STATE.intel) {
+                // Best outcome - both plans worked, Kyros thrives
+                kyrosText = `<p>Kyros ran messages between the harbor and the Library for three days straight. His shipwright's knowledge and his scholar's urgency combined into something useful. When the coordination almost broke, he was one of the people who held it together.</p>
+
+<p>"Both plans," he said afterward, echoing Hypatia. "Defending and carrying. Maybe that's what the Library should have been all along." He went to Pergamum with the third convoy, carrying Sappho's fragments and a new understanding of what preservation meant.</p>`;
+            } else if (STATE.intel) {
+                // Good outcome
+                kyrosText = `<p>Kyros survived. He'd been at the harbor when the worst happened, loading the last carts. His fragment of Sappho made it onto a ship bound for Athens.</p>
+
+<p>"We saved more than I thought we could," he said. "Not everything. But more." He looked at the smoke on the horizon. "Maybe that's enough. Maybe that's all anyone can do."</p>`;
+            } else {
+                // Poetry lost - harder for Kyros
+                kyrosText = `<p>Kyros was at the Library when the coordination failed. He'd been copying Sappho's fragments—racing against time. When the fire reached the poetry section, he was still there.</p>
+
+<p>He got out. The copies didn't.</p>
+
+<p>"I tried," he said afterward. His hands were burned, his voice hollow. "I had her words right there, and I couldn't—" He held up the scroll case. "At least the original survived. At least that much."</p>`;
+            }
+        }
+
         let prose = `<p>You tried to do everything. Against all odds, you almost succeeded.</p>
 
 <p>The first three days were a miracle of coordination. Hypatia's defense bought time; Theron's evacuation used it. Runners moved between the Library and harbor in constant stream. The barricades held. The carts kept moving.</p>
@@ -272,6 +355,8 @@ ${cityText}
 ${intelText}
 
 ${outcomeText}
+
+${kyrosText}
 
 ${reflectionText}
 
@@ -285,7 +370,18 @@ ${reflectionText}
     title: "The Refusal",
     act: 4,
     ending: true,
-    prose: `<p>"I don't choose."</p>
+    dynamic: true,
+    getProseAndChoices: function() {
+        let kyrosText = "";
+        if (STATE.kyrosJoined) {
+            kyrosText = `<p>Kyros looked at you when you said the words. Something died in his expression—not hope exactly, but belief. Belief that someone would choose.</p>
+
+<p>He left that night. You heard later he'd made it onto a Cypriot vessel. The fragment of Sappho went with him—at least that much survived your refusal.</p>
+
+<p>"He kept asking why," one of the junior scholars told you afterward. "Why you wouldn't choose. I don't think he ever understood."</p>`;
+        }
+
+        let prose = `<p>"I don't choose."</p>
 
 <p>The words fell into silence.</p>
 
@@ -301,6 +397,8 @@ ${reflectionText}
 
 <p>They turned away. Not in anger—in necessity.</p>
 
+${kyrosText}
+
 <p>Theron evacuated what he could—not much, without coordination. Hypatia defended what she could—not long, without support. The barricades held for a day.</p>
 
 <p>Perhaps fifteen thousand scrolls survived. Less than half what evacuation might have saved.</p>
@@ -313,7 +411,10 @@ ${reflectionText}
 
 <p>Just not by you.</p>
 
-<p class="ending-label"><strong>ENDING: The Refusal</strong></p>`
+<p class="ending-label"><strong>ENDING: The Refusal</strong></p>`;
+
+        return { prose: prose, choices: null };
+    }
 }
 
 };

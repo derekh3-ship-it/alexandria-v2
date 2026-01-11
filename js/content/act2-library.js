@@ -11,16 +11,30 @@ export const ACT2_LIBRARY_CONTENT = {
     title: "The Translation Rooms",
     act: 2,
     thread: "library",
-    prose: `<p>You move deeper into the Library, past the grand reading rooms and the public halls. Here the corridors narrow. The light changes—fewer windows, more oil lamps. The smell of ink and papyrus grows stronger.</p>
+    dynamic: true,
+    getProseAndChoices: function() {
+        let prose = `<p>You move deeper into the Library, past the grand reading rooms and the public halls. Here the corridors narrow. The light changes—fewer windows, more oil lamps. The smell of ink and papyrus grows stronger.</p>
 
 <p>This is where the real work happens. Copyists bent over desks, their pens scratching in steady rhythm. Translators with three texts spread before them, moving between languages. The industry beneath the scholarship.</p>
 
 <p>Theron mentioned a translator. "Miriam. Jewish. She has her own network—older than ours, in some ways larger. If anyone understands what we're trying to do, she does. Find her in the translation rooms. She keeps to herself."</p>
 
-<p>You ask a passing scribe. He points to a smaller chamber off the main corridor. "The Hebrew translator. She's always there."</p>`,
-    choices: [
-        { text: "Enter the chamber.", next: "A2-LIBRARY-ENCOUNTER" }
-    ]
+<p>You ask a passing scribe. He points to a smaller chamber off the main corridor. "The Hebrew translator. She's always there."</p>`;
+
+        // Add Kyros reaction if he's present
+        if (STATE.kyrosJoined) {
+            prose += `
+
+<p>Kyros lingers by a copyist's desk, watching the man work. "I always wondered what it was like back here," he murmurs. "The parts of the Library that aren't for showing off." He catches up to you. "A translator with her own network. That sounds... different from what the scholars talk about."</p>`;
+        }
+
+        return {
+            prose: prose,
+            choices: [
+                { text: "Enter the chamber.", next: "A2-LIBRARY-ENCOUNTER" }
+            ]
+        };
+    }
 },
 
 "A2-LIBRARY-ENCOUNTER": {
@@ -174,7 +188,9 @@ export const ACT2_LIBRARY_CONTENT = {
     title: "Her People's Way",
     act: 2,
     thread: "library",
-    prose: `<p>"Our way." She settles back, and warmth enters her voice. This is her ground—the place where she's expert and unguarded.</p>
+    dynamic: true,
+    getProseAndChoices: function() {
+        let prose = `<p>"Our way." She settles back, and warmth enters her voice. This is her ground—the place where she's expert and unguarded.</p>
 
 <p>"When the Babylonians destroyed the first Temple, six hundred years ago, our scholars faced a choice. The rituals required the Temple. The sacrifices required the altar. Everything was built around a building that no longer existed."</p>
 
@@ -182,12 +198,101 @@ export const ACT2_LIBRARY_CONTENT = {
 
 <p>She gestures outward. "Every synagogue around the Middle Sea is the same temple. The same words, the same rhythms, the same teachings. A child in Alexandria learns the same prayers as a child in Babylon. When the building burns, the temple travels."</p>
 
-<p>She looks at you. "Your Library preserves scrolls. My people preserve teaching. Scrolls can burn. Teaching lives in every student who learns it."</p>`,
+<p>She looks at you. "Your Library preserves scrolls. My people preserve teaching. Scrolls can burn. Teaching lives in every student who learns it."</p>`;
+
+        let choices;
+
+        // If Kyros is present, he connects with her philosophy
+        if (STATE.kyrosJoined) {
+            prose += `
+
+<p>Kyros makes a small sound—almost involuntary. Miriam's eyes flick to him, assessing.</p>
+
+<p>"You have something to say." It's not a question.</p>`;
+
+            choices = [
+                { text: "Nod to Kyros. \"Go ahead.\"", next: "A2-LIBRARY-KYROS-SPEAKS", effects: { kyrosMiriamConnection: true } },
+                { text: "\"That's what I've been saying,\" Kyros starts—", next: "A2-LIBRARY-KYROS-EAGER" },
+                { text: "Keep the focus on Miriam.", next: "A2-LIBRARY-KYROS-QUIET" }
+            ];
+        } else {
+            choices = [
+                { text: "\"But teaching changes over time. Drifts. Scrolls are fixed.\"", next: "A2-LIBRARY-SCROLLS-VALUE" },
+                { text: "\"What's still at risk for you? What hasn't been... distributed?\"", next: "A2-LIBRARY-HER-PRIORITIES" },
+                { text: "\"Could that model work for the Library? For Greek knowledge?\"", next: "A2-LIBRARY-APPLY" }
+            ];
+        }
+
+        return { prose: prose, choices: choices, prompt: "How do you respond?" };
+    }
+},
+
+"A2-LIBRARY-KYROS-SPEAKS": {
+    title: "Kindred Spirits",
+    act: 2,
+    thread: "library",
+    prose: `<p>Kyros steps forward, words tumbling out with the relief of finally being understood.</p>
+
+<p>"That's what I've been trying to say. To everyone." He touches the scroll case at his side. "I have a fragment of Sappho in here. One copy. Precious. And I've been carrying it around like it's sacred, like the papyrus itself matters."</p>
+
+<p>He looks at Miriam. "But you're saying—the teaching matters more than the scroll. If I taught Sappho to a hundred people, really taught her, made them feel what she felt... then she survives even if the papyrus burns."</p>
+
+<p>Miriam studies him for a long moment. Something shifts in her expression—recognition, perhaps.</p>
+
+<p>"You understand." She says it simply. "Most Greeks don't. They think we're primitive—oral traditions, no proper archives. They don't see that we've survived empires they can't even remember."</p>
+
+<p>She turns back to you, but her voice has changed—warmer, more open. "Your young friend has been thinking about this. Good. It means someone in your generation sees what matters."</p>`,
+    prompt: "How do you respond?",
+    choices: [
+        { text: "\"Could that model work for the Library? For Greek knowledge?\"", next: "A2-LIBRARY-APPLY" },
+        { text: "\"What's still at risk for you? What hasn't been distributed?\"", next: "A2-LIBRARY-HER-PRIORITIES" },
+        { text: "\"What do you need from us?\"", next: "A2-LIBRARY-TERMS" }
+    ]
+},
+
+"A2-LIBRARY-KYROS-EAGER": {
+    title: "Eager Recognition",
+    act: 2,
+    thread: "library",
+    dynamic: true,
+    getProseAndChoices: function() {
+        let prose = `<p>Kyros can't contain himself. "That's what I've been saying! To everyone who'll listen—the scrolls are just containers. What matters is getting the knowledge to people. Real people, not just scholars arguing about—"</p>
+
+<p>He catches himself. Looks at Miriam, suddenly uncertain if he's overstepped.</p>
+
+<p>But she's smiling—a small, genuine smile. "A Greek who thinks like a Jew. That's rare." She gestures for him to continue. "Tell me more. What knowledge are you trying to spread?"</p>
+
+<p>Kyros launches into his philosophy—Sappho, poetry, the fishermen who deserve to hear beautiful words. Miriam listens, nodding occasionally, asking sharp questions. By the end, something has shifted between them. Kindred spirits recognizing each other.</p>
+
+<p>"You're young," Miriam says finally. "And idealistic. But you're not wrong." She looks at you. "I like him. Does he come with the alliance?"</p>`;
+
+        return {
+            prose: prose,
+            choices: [
+                { text: "\"Could your model work for Greek knowledge?\"", next: "A2-LIBRARY-APPLY" },
+                { text: "\"What do you need from us?\"", next: "A2-LIBRARY-TERMS" }
+            ],
+            prompt: "How do you respond?"
+        };
+    }
+},
+
+"A2-LIBRARY-KYROS-QUIET": {
+    title: "Holding Back",
+    act: 2,
+    thread: "library",
+    prose: `<p>Kyros stays silent, but you can see the tension in his shoulders. Every word Miriam says resonates with something he's been feeling, and it takes visible effort not to interrupt.</p>
+
+<p>Miriam notices. She's the type who notices everything. But she doesn't push—just files it away, continues speaking to you.</p>
+
+<p>"Teaching lives in every student. That's how we survive. Not through buildings or collections, but through people who carry the knowledge forward."</p>
+
+<p>Kyros's grip on his scroll case tightens. He'll have questions later. Many questions.</p>`,
     prompt: "How do you respond?",
     choices: [
         { text: "\"But teaching changes over time. Drifts. Scrolls are fixed.\"", next: "A2-LIBRARY-SCROLLS-VALUE" },
-        { text: "\"What's still at risk for you? What hasn't been... distributed?\"", next: "A2-LIBRARY-HER-PRIORITIES" },
-        { text: "\"Could that model work for the Library? For Greek knowledge?\"", next: "A2-LIBRARY-APPLY" }
+        { text: "\"What's still at risk for you? What hasn't been distributed?\"", next: "A2-LIBRARY-HER-PRIORITIES" },
+        { text: "\"Could that model work for the Library?\"", next: "A2-LIBRARY-APPLY" }
     ]
 },
 
@@ -441,7 +546,9 @@ export const ACT2_LIBRARY_CONTENT = {
     title: "Alliance Formed",
     act: 2,
     thread: "library",
-    prose: `<p>She studies you for a long moment. Then she nods—once, precisely.</p>
+    dynamic: true,
+    getProseAndChoices: function() {
+        let prose = `<p>She studies you for a long moment. Then she nods—once, precisely.</p>
 
 <p>"Done." She stands, moves to a shelf, pulls down a scroll. "This is my network. Contacts in Antioch, Cyrene, Rome, Caesarea. Who to approach, what to say, where to find them. Memorize it or copy it—but don't let it fall into the wrong hands."</p>
 
@@ -449,26 +556,72 @@ export const ACT2_LIBRARY_CONTENT = {
 
 <p>She pauses at the door. "Tell Hypatia. And tell Theron—his network and mine, working together. We might save more than either could alone."</p>
 
-<p>She almost smiles. "A temple of words that can travel. Built together, this time."</p>`,
-    choices: [
-        { text: "Return to the Library.", next: "A2-HUB" }
-    ]
+<p>She almost smiles. "A temple of words that can travel. Built together, this time."</p>`;
+
+        // Add Kyros processing if he's present
+        if (STATE.kyrosJoined) {
+            if (STATE.kyrosMiriamConnection) {
+                prose += `
+
+<p>Outside, Kyros is practically glowing. "She understood. Did you see? She actually understood what I've been trying to say."</p>
+
+<p>He touches the scroll case. "Teaching lives in every student who learns it. That's it. That's the answer. Not just preserving scrolls—making people carry the knowledge. Making it matter to them."</p>
+
+<p>He looks at you. "I want to learn from her. If we get through this... I want to learn how her people do it. How they've survived."</p>`;
+            } else {
+                prose += `
+
+<p>Kyros is quiet as you leave the translation rooms. "She's remarkable," he says finally. "Everything she said about teaching, about survival... I need to think about it."</p>
+
+<p>He touches the scroll case. "Maybe I've been thinking about this wrong. Carrying Sappho like a relic instead of..." He trails off. "I need to think."</p>`;
+            }
+        }
+
+        return {
+            prose: prose,
+            choices: [
+                { text: "Return to the Library.", next: "A2-HUB" }
+            ]
+        };
+    }
 },
 
 "A2-LIBRARY-DEFER": {
     title: "Deferred",
     act: 2,
     thread: "library",
-    prose: `<p>She nods. Goes back to her texts.</p>
+    dynamic: true,
+    getProseAndChoices: function() {
+        let prose = `<p>She nods. Goes back to her texts.</p>
 
 <p>"Think about it. I'll be here." She picks up her pen. "I've been preparing for six months. A few more hours won't change what I'm doing."</p>
 
 <p>She looks up. "But don't wait too long. The harbor is changing. My brother's ships won't wait forever, and neither will Theron's."</p>
 
-<p>She returns to her work. The conversation isn't over—but the decision is yours to make.</p>`,
-    choices: [
-        { text: "Return to the Library.", next: "A2-HUB" }
-    ]
+<p>She returns to her work. The conversation isn't over—but the decision is yours to make.</p>`;
+
+        // Add Kyros processing if he's present
+        if (STATE.kyrosJoined) {
+            if (STATE.kyrosMiriamConnection) {
+                prose += `
+
+<p>Outside, Kyros hesitates. "You're going to say yes, aren't you? Eventually?" He sounds almost anxious. "She's the first person I've met who actually thinks about this the way I do. The teaching, the spreading, the—"</p>
+
+<p>He stops himself. "Sorry. I know it's your decision. I just..." He touches the scroll case. "I finally feel like I'm not crazy for believing what I believe."</p>`;
+            } else {
+                prose += `
+
+<p>Kyros is thoughtful as you leave. "Her network sounds useful," he offers. "And what she said about teaching... I keep thinking about it. About whether I've been doing this wrong."</p>`;
+            }
+        }
+
+        return {
+            prose: prose,
+            choices: [
+                { text: "Return to the Library.", next: "A2-HUB" }
+            ]
+        };
+    }
 },
 
 "A2-LIBRARY-RETURN": {
@@ -493,30 +646,80 @@ export const ACT2_LIBRARY_CONTENT = {
     title: "Alliance Formed",
     act: 2,
     thread: "library",
-    prose: `<p>She nods—once, precisely. "Good."</p>
+    dynamic: true,
+    getProseAndChoices: function() {
+        let prose = `<p>She nods—once, precisely. "Good."</p>
 
 <p>She stands, pulls a scroll from the shelf. "My network. Contacts, routes, receiving points. Memorize it or copy it."</p>
 
 <p>She hands it to you. "You came back. That matters. Most people, when they hesitate, they're already gone."</p>
 
-<p>Something almost like warmth enters her expression. "Tell Hypatia. Tell Theron. And when the fire comes—we carry what we can, together."</p>`,
-    choices: [
-        { text: "Return to the Library.", next: "A2-HUB" }
-    ]
+<p>Something almost like warmth enters her expression. "Tell Hypatia. Tell Theron. And when the fire comes—we carry what we can, together."</p>`;
+
+        // Add Kyros processing if he's present
+        if (STATE.kyrosJoined) {
+            if (STATE.kyrosMiriamConnection) {
+                prose += `
+
+<p>Outside, Kyros exhales with relief. "Thank you. For coming back." He looks at the door of the translation room. "I know it's about the network, the alliance, the practical things. But for me..."</p>
+
+<p>He shakes his head. "She's proof that what I believe isn't foolish. That spreading knowledge, making it live in people—it's not just idealism. Her people have done it for a thousand years."</p>`;
+            } else {
+                prose += `
+
+<p>Kyros nods as you leave. "I'm glad you came back. She has something real to offer—not just contacts, but a whole way of thinking about survival."</p>
+
+<p>He's quiet for a moment. "I want to talk to her again. When there's time. Learn more about how they do it."</p>`;
+            }
+        }
+
+        return {
+            prose: prose,
+            choices: [
+                { text: "Return to the Library.", next: "A2-HUB" }
+            ]
+        };
+    }
 },
 
 "A2-LIBRARY-FINAL": {
     title: "Final Refusal",
     act: 2,
     thread: "library",
-    prose: `<p>She watches you for a moment. Then she nods—once, precisely—and picks up her pen.</p>
+    dynamic: true,
+    getProseAndChoices: function() {
+        let prose = `<p>She watches you for a moment. Then she nods—once, precisely—and picks up her pen.</p>
 
 <p>"Then we do what we were already doing. Separately." She returns to her text. "I hope your way works. I hope mine does too. We'll find out."</p>
 
-<p>She doesn't look up again. The conversation is over.</p>`,
-    choices: [
-        { text: "Leave.", next: "A2-HUB" }
-    ]
+<p>She doesn't look up again. The conversation is over.</p>`;
+
+        // Add Kyros processing if he's present
+        if (STATE.kyrosJoined) {
+            if (STATE.kyrosMiriamConnection) {
+                prose += `
+
+<p>Kyros doesn't speak until you're well away from the translation rooms. When he does, his voice is tight.</p>
+
+<p>"I wish—" He stops. Starts again. "She understood. What I've been trying to say. And we just walked away from her."</p>
+
+<p>He looks at you. "I know there are reasons. Politics, protocols, whatever. But she was the first person who made me feel like I wasn't alone in this."</p>
+
+<p>He touches the scroll case. "I'll remember what she said. Even if we never see her again."</p>`;
+            } else {
+                prose += `
+
+<p>Kyros is quiet as you leave. "Her way of thinking about preservation—teaching instead of storing, people instead of buildings..." He shakes his head. "I'm going to remember that. Even if we're not working together."</p>`;
+            }
+        }
+
+        return {
+            prose: prose,
+            choices: [
+                { text: "Leave.", next: "A2-HUB" }
+            ]
+        };
+    }
 }
 
 };
