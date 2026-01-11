@@ -169,7 +169,12 @@ export const ACT2_KYROS_CONTENT = {
     title: "Joining Quickly",
     act: 2,
     thread: "kyros",
-    prose: `<p>He gathers his things quickly—the scroll case, a small bag, a wax tablet for notes. His movements are efficient; whatever else he is, he's used to work.</p>
+    dynamic: true,
+    getProseAndChoices: function() {
+        let isLate = STATE.threadsVisited.length > 0 || STATE.threadsCompleted.length > 0;
+        let timing = isLate ? "late" : "early";
+
+        let prose = `<p>He gathers his things quickly—the scroll case, a small bag, a wax tablet for notes. His movements are efficient; whatever else he is, he's used to work.</p>
 
 <p>"Where do we start?" He falls into step beside you. "Theron said you'd know what to do."</p>
 
@@ -179,18 +184,23 @@ export const ACT2_KYROS_CONTENT = {
 
 <p>Kyros walks beside you through the colonnade, his scholar's robes slightly too fine, his hands slightly too rough. Between two worlds—the one he left and the one that hasn't fully accepted him.</p>
 
-<p>The Library stretches before you. The crisis waits.</p>`,
-    choices: [
-        {
-            text: "Continue into the city.",
-            next: "A2-HUB",
-            effects: {
-                kyrosJoined: true,
-                kyrosPickupTiming: "late",
-                kyrosRelationship: "neutral"
-            }
-        }
-    ]
+<p>The Library stretches before you. The crisis waits.</p>`;
+
+        return {
+            prose: prose,
+            choices: [
+                {
+                    text: "Continue into the city.",
+                    next: "A2-HUB",
+                    effects: {
+                        kyrosJoined: true,
+                        kyrosPickupTiming: timing,
+                        kyrosRelationship: "neutral"
+                    }
+                }
+            ]
+        };
+    }
 },
 
 "A2-KYROS-JOIN": {
