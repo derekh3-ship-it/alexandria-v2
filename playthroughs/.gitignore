@@ -1,0 +1,3 @@
+# Ignore generated playthrough files
+*.txt
+!.gitignore
