@@ -41,7 +41,20 @@ export const ACT2_HUB_CONTENT = {
 
         // Add Kyros companion text if he's with the player
         if (STATE.kyrosJoined) {
-            prose += `<p>Kyros walks beside you, the scroll case with his Sappho fragment never far from his side. He's watching the city with new eyes—seeing it differently after everything you've witnessed together.</p>`;
+            // Check if we've actually done threads together
+            let threadsDoneTogether = STATE.threadsVisited.length > 0 || STATE.threadsCompleted.length > 0;
+            // But only count threads done AFTER pickup (early pickup means all threads are together)
+            let didEarlyPickup = STATE.kyrosPickupTiming === "early";
+
+            if (didEarlyPickup && threadsDoneTogether) {
+                prose += `<p>Kyros walks beside you, the scroll case with his Sappho fragment never far from his side. He's watching the city with new eyes—seeing it differently after everything you've witnessed together.</p>`;
+            } else if (!didEarlyPickup && threadsDoneTogether) {
+                // Late pickup - he missed some things
+                prose += `<p>Kyros walks beside you, the scroll case with his Sappho fragment never far from his side. He's still catching up—piecing together what you've already learned.</p>`;
+            } else {
+                // Just recruited, haven't done threads yet
+                prose += `<p>Kyros walks beside you, the scroll case with his Sappho fragment never far from his side. His eyes scan the streets of Alexandria—a city he's only seen from inside the Library walls.</p>`;
+            }
         } else if (STATE.threadsStarted.includes("kyros") && !STATE.kyrosJoined) {
             // Reminder if player started but didn't finish Kyros pickup
             prose += `<p><em>Theron mentioned a young scholar—Kyros, in the eastern colonnade. He's probably still waiting.</em></p>`;
