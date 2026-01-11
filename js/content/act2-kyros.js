@@ -175,14 +175,22 @@ export const ACT2_KYROS_CONTENT = {
 
 <p>He looks at the colonnade around him—the shelves rising into shadow, the smell of papyrus and lamp oil.</p>
 
-<p>"Just tell me what you need. I'm ready."</p>`,
-    choices: null,
-    next: "A2-KYROS-JOINED",
-    effects: {
-        kyrosJoined: true,
-        kyrosPickupTiming: "late",
-        kyrosRelationship: "neutral"
-    }
+<p>"Just tell me what you need. I'm ready."</p>
+
+<p>Kyros walks beside you through the colonnade, his scholar's robes slightly too fine, his hands slightly too rough. Between two worlds—the one he left and the one that hasn't fully accepted him.</p>
+
+<p>The Library stretches before you. The crisis waits.</p>`,
+    choices: [
+        {
+            text: "Continue into the city.",
+            next: "A2-HUB",
+            effects: {
+                kyrosJoined: true,
+                kyrosPickupTiming: "late",
+                kyrosRelationship: "neutral"
+            }
+        }
+    ]
 },
 
 "A2-KYROS-JOIN": {
@@ -203,43 +211,32 @@ export const ACT2_KYROS_CONTENT = {
 
 <p>He meets your eyes.</p>
 
-<p>"Use me. However you need to. I just want to help save something."</p>`;
+<p>"Use me. However you need to. I just want to help save something."</p>
+
+<p>Kyros walks beside you through the colonnade, his scholar's robes slightly too fine, his hands slightly too rough. Between two worlds—the one he left and the one that hasn't fully accepted him.</p>
+
+<p>The Library stretches before you. The crisis waits.</p>`;
 
         let timing = isLate ? "late" : "early";
         let relationship = STATE.kyrosPoetryDiscussed || STATE.kyrosFamilyDiscussed ? "positive" : "neutral";
 
-        return {
-            prose: prose,
-            choices: null,
-            next: "A2-KYROS-JOINED",
-            effects: {
-                kyrosJoined: true,
-                kyrosPickupTiming: timing,
-                kyrosRelationship: relationship
-            }
-        };
-    }
-},
-
-"A2-KYROS-JOINED": {
-    title: "Companion Joined",
-    act: 2,
-    thread: "kyros",
-    dynamic: true,
-    getProseAndChoices: function() {
-        let prose = `<p>Kyros walks beside you through the colonnade, his scholar's robes slightly too fine, his hands slightly too rough. Between two worlds—the one he left and the one that hasn't fully accepted him.</p>
-
-<p>The Library stretches before you. The crisis waits.</p>`;
-
         // Add reminder about Theron's mention if early pickup
-        if (STATE.kyrosPickupTiming === "early") {
+        if (!isLate) {
             prose += `<p>"Theron mentioned others," Kyros says. "People we should talk to. The harbor. The temple. The city." He glances at you. "Where do we go first?"</p>`;
         }
 
         return {
             prose: prose,
             choices: [
-                { text: "Return to the Library.", next: "A2-HUB" }
+                {
+                    text: "Continue into the city.",
+                    next: "A2-HUB",
+                    effects: {
+                        kyrosJoined: true,
+                        kyrosPickupTiming: timing,
+                        kyrosRelationship: relationship
+                    }
+                }
             ]
         };
     }
