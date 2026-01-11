@@ -3,22 +3,42 @@
  * Khaemwaset at the Serapeum
  */
 
+import { STATE } from '../state.js';
+
 export const ACT2_TEMPLE_CONTENT = {
 
 "A2-TEMPLE": {
     title: "The Approach",
     act: 2,
     thread: "temple",
-    prose: `<p>The Serapeum rises on its hill above the old Egyptian quarter—a hundred steps climbing from the street to the colonnade. You've seen it from a distance a thousand times. The lighthouse marks the harbor; the Serapeum marks the city's other heart.</p>
+    dynamic: true,
+    getProseAndChoices: function() {
+        let prose = `<p>The Serapeum rises on its hill above the old Egyptian quarter—a hundred steps climbing from the street to the colonnade. You've seen it from a distance a thousand times. The lighthouse marks the harbor; the Serapeum marks the city's other heart.</p>
 
 <p>The climb is longer than it looks. Pilgrims pass you going both directions—a woman with an offering basket, an old man leaning on his grandson. This is a living temple, not an archive. People come here to pray, to heal, to ask questions of the god.</p>
 
-<p>The Daughter Library is housed in the stoa—the covered walkway surrounding the main temple. You can see scholars moving between the columns, but they're not the dominant presence here. The dominant presence is Serapis himself, somewhere in the sanctuary beyond.</p>
+<p>The Daughter Library is housed in the stoa—the covered walkway surrounding the main temple. You can see scholars moving between the columns, but they're not the dominant presence here. The dominant presence is Serapis himself, somewhere in the sanctuary beyond.</p>`;
 
-<p>A young priest intercepts you at the top of the steps. "You're expected," he says. "This way."</p>`,
-    choices: [
-        { text: "Follow him.", next: "A2-TEMPLE-ENCOUNTER" }
-    ]
+        // Add Kyros reaction if he's with the player
+        if (STATE.kyrosJoined) {
+            prose += `
+
+<p>Kyros is uncomfortable here. You can see it in the way he moves—too careful, too aware. The Serapeum isn't the Library. It's older, stranger, more explicitly religious.</p>
+
+<p>"I've never been inside," he admits quietly. "The scholars talk about Khaemwaset. They say he's been positioning the temple as an alternative to the Library for years." He glances at you. "What does he want from us?"</p>`;
+        }
+
+        prose += `
+
+<p>A young priest intercepts you at the top of the steps. "You're expected," he says. "This way."</p>`;
+
+        return {
+            prose: prose,
+            choices: [
+                { text: "Follow him.", next: "A2-TEMPLE-ENCOUNTER" }
+            ]
+        };
+    }
 },
 
 "A2-TEMPLE-ENCOUNTER": {
@@ -135,11 +155,73 @@ export const ACT2_TEMPLE_CONTENT = {
     title: "The Challenge",
     act: 2,
     thread: "temple",
-    prose: `<p>"Reduce?" He considers the word. "No. But I would be honest about what survives and why."</p>
+    dynamic: true,
+    getProseAndChoices: function() {
+        let prose = `<p>"Reduce?" He considers the word. "No. But I would be honest about what survives and why."</p>
 
 <p>"Your Library has Sappho's poems. Beautiful. Essential to understanding the human heart. How many copies exist? How many people read them each year? How many would notice if they vanished?" He pauses. "Now consider the medical texts. The agricultural calendars. The astronomical tables that tell sailors when to travel. How many copies? How many readers? How many would die if they vanished?"</p>
 
-<p>"I am not saying Sappho does not matter. I am saying that Sappho's survival depends on someone choosing to copy her, again and again, for reasons that have nothing to do with her beauty. Need creates copies. Admiration creates single precious objects that burn."</p>`,
+<p>"I am not saying Sappho does not matter. I am saying that Sappho's survival depends on someone choosing to copy her, again and again, for reasons that have nothing to do with her beauty. Need creates copies. Admiration creates single precious objects that burn."</p>`;
+
+        let choices;
+
+        // If Kyros is present, he wants to defend poetry
+        if (STATE.kyrosJoined) {
+            prose += `
+
+<p>Kyros stirs. You can see him processing—this argument sounds almost like his own beliefs about spreading knowledge, but twisted into something that doesn't feel right.</p>
+
+<p>"That's—" He catches himself. Looks at you, uncertain whether to speak.</p>`;
+
+            choices = [
+                { text: "Nod to Kyros. \"Go ahead.\"", next: "A2-TEMPLE-KYROS-SPEAKS", effects: { kyrosSapphoDefense: true } },
+                { text: "Keep the focus on Khaemwaset.", next: "A2-TEMPLE-KYROS-SILENT" },
+                { text: "\"So what would you preserve?\"", next: "A2-TEMPLE-PRICE" }
+            ];
+        } else {
+            choices = [
+                { text: "\"So what would you preserve?\"", next: "A2-TEMPLE-PRICE" },
+                { text: "\"You've watched things burn before.\"", next: "A2-TEMPLE-VULNERABILITY" },
+                { text: "\"Give me your terms.\"", next: "A2-TEMPLE-TERMS" }
+            ];
+        }
+
+        return { prose: prose, choices: choices, prompt: "How do you respond?" };
+    }
+},
+
+"A2-TEMPLE-KYROS-SPEAKS": {
+    title: "Kyros Defends Poetry",
+    act: 2,
+    thread: "temple",
+    prose: `<p>"That's what I believe too," Kyros says, stepping forward. "That knowledge should be useful, should reach people. But—"</p>
+
+<p>He turns to Khaemwaset.</p>
+
+<p>"You're talking about utility like it only means practical things. Medicine. Agriculture. Calendars." He touches the scroll case at his side. "What about poetry? What about the texts that don't help you plant crops or cure fevers, but help you understand what you feel? Is that need too?"</p>
+
+<p>Khaemwaset's expression doesn't change. "A farmer burying his son needs comfort. That is utility. A farmer's wife crying in the night needs words for her grief. That is also utility." He pauses. "But the poetry that only scholars read, that only scholars care about—that is prestige. That dies first."</p>
+
+<p>Kyros has no answer. The argument is harder than he expected.</p>
+
+<p>"You defend poetry with passion," Khaemwaset observes. "That is admirable. But passion does not create copies. Need does. If you want Sappho to survive, make people need her."</p>`,
+    prompt: "How do you respond?",
+    choices: [
+        { text: "\"So what would you preserve?\"", next: "A2-TEMPLE-PRICE" },
+        { text: "\"You've watched things burn before.\"", next: "A2-TEMPLE-VULNERABILITY" },
+        { text: "\"Give me your terms.\"", next: "A2-TEMPLE-TERMS" }
+    ]
+},
+
+"A2-TEMPLE-KYROS-SILENT": {
+    title: "Kyros Silent",
+    act: 2,
+    thread: "temple",
+    prose: `<p>Kyros stays silent, but you can see the tension in his shoulders. Something in Khaemwaset's words has unsettled him—not because they're wrong, but because they're almost right.</p>
+
+<p>He grips the scroll case tighter. The fragment of Sappho inside—is it need, or is it prestige? He doesn't seem certain anymore.</p>
+
+<p>Khaemwaset notices, but says nothing. He simply waits for your response.</p>`,
     prompt: "How do you respond?",
     choices: [
         { text: "\"So what would you preserve?\"", next: "A2-TEMPLE-PRICE" },
@@ -246,7 +328,9 @@ export const ACT2_TEMPLE_CONTENT = {
     title: "Agreement",
     act: 2,
     thread: "temple",
-    prose: `<p>Khaemwaset inclines his head—a small gesture that carries weight.</p>
+    dynamic: true,
+    getProseAndChoices: function() {
+        let prose = `<p>Khaemwaset inclines his head—a small gesture that carries weight.</p>
 
 <p>"Then we have an agreement. The vaults will be ready. The network will be informed." He moves toward the inner temple, then pauses. "I will pray for your Library. I do not think prayer will save it. But I will pray nonetheless."</p>
 
@@ -254,42 +338,112 @@ export const ACT2_TEMPLE_CONTENT = {
 
 <p>The young priest appears to escort you out. Behind you, Khaemwaset disappears into the shadows of the sanctuary.</p>
 
-<p>The deal is struck. The temple will help—at its price.</p>`,
-    choices: [
-        { text: "Return to the city.", next: "A2-HUB" }
-    ]
+<p>The deal is struck. The temple will help—at its price.</p>`;
+
+        // Add Kyros processing if he's present
+        if (STATE.kyrosJoined) {
+            if (STATE.kyrosSapphoDefense) {
+                prose += `
+
+<p>On the hundred steps down, Kyros is quiet. Finally: "He wasn't wrong. About poetry needing to be needed." He touches the scroll case. "I just... I don't like that he's right. It feels like giving up on something."</p>
+
+<p>"Make people need her," he repeats softly. "Maybe that's what I should be doing. Not just carrying Sappho around like a relic. Actually making her matter to someone."</p>`;
+            } else {
+                prose += `
+
+<p>Kyros is quiet as you descend the temple steps. "That was..." He searches for words. "He sees everything in terms of survival. What lasts, what doesn't. It's hard to argue with."</p>
+
+<p>He looks back at the Serapeum. "I thought I'd hate him. I don't. I just feel like he's already living in a world where everything I love has burned."</p>`;
+            }
+        }
+
+        return {
+            prose: prose,
+            choices: [
+                { text: "Return to the city.", next: "A2-HUB" }
+            ]
+        };
+    }
 },
 
 "A2-TEMPLE-DEFER": {
     title: "Deferred",
     act: 2,
     thread: "temple",
-    prose: `<p>"Of course." Khaemwaset settles back onto the bench. "Take it to your colleagues. Debate it in your hidden chambers. I understand the need for consultation."</p>
+    dynamic: true,
+    getProseAndChoices: function() {
+        let prose = `<p>"Of course." Khaemwaset settles back onto the bench. "Take it to your colleagues. Debate it in your hidden chambers. I understand the need for consultation."</p>
 
 <p>He gestures toward the city below. "But understand: the harbor is changing. I can see it from here. Ships leaving early. Soldiers arriving. Whatever is coming, it will not wait for your deliberations."</p>
 
 <p>He folds his hands. "The offer stands. The temple has patience. But the crisis does not."</p>
 
-<p>The young priest appears to escort you out. You've learned what you came to learn. The decision remains unmade.</p>`,
-    choices: [
-        { text: "Return to the city.", next: "A2-HUB" }
-    ]
+<p>The young priest appears to escort you out. You've learned what you came to learn. The decision remains unmade.</p>`;
+
+        // Add Kyros processing if he's present
+        if (STATE.kyrosJoined) {
+            if (STATE.kyrosSapphoDefense) {
+                prose += `
+
+<p>On the steps, Kyros walks beside you in silence. Then: "I think he wanted me to argue with him. About poetry." He frowns. "And I think... I think he won. Even though I tried."</p>
+
+<p>He touches the scroll case. "Need creates copies. Admiration creates precious objects that burn." He looks at you. "What if he's right? What if I've been carrying around something that's already dead, and I just don't want to admit it?"</p>`;
+            } else {
+                prose += `
+
+<p>Kyros is thoughtful as you descend. "He's not what I expected. I thought he'd be..." He gestures vaguely. "More religious. More mystical. But he talks like a merchant. Supply and demand, but for knowledge."</p>
+
+<p>He glances back at the temple. "Do you think he's right? That things only survive if people need them?"</p>`;
+            }
+        }
+
+        return {
+            prose: prose,
+            choices: [
+                { text: "Return to the city.", next: "A2-HUB" }
+            ]
+        };
+    }
 },
 
 "A2-TEMPLE-REFUSE": {
     title: "Refused",
     act: 2,
     thread: "temple",
-    prose: `<p>Khaemwaset's expression doesn't change. He simply nods.</p>
+    dynamic: true,
+    getProseAndChoices: function() {
+        let prose = `<p>Khaemwaset's expression doesn't change. He simply nods.</p>
 
 <p>"The price is what it is. I do not haggle." He rises, moves toward the inner temple. "I hope your other options prove more palatable. I suspect they will not, but I have been wrong before."</p>
 
 <p>He pauses at the threshold. "The vaults will be here when the fire comes. If your way fails, some of what you carry may still find its way to us. We have been receiving refugees for a very long time."</p>
 
-<p>He disappears into the shadows. The conversation is over.</p>`,
-    choices: [
-        { text: "Return to the city.", next: "A2-HUB" }
-    ]
+<p>He disappears into the shadows. The conversation is over.</p>`;
+
+        // Add Kyros processing if he's present
+        if (STATE.kyrosJoined) {
+            if (STATE.kyrosSapphoDefense) {
+                prose += `
+
+<p>On the descent, Kyros exhales slowly. "I'm glad you said no. His terms felt..." He searches for the word. "Like surrender. Like admitting the Library already lost."</p>
+
+<p>But then, quieter: "He still wasn't wrong about poetry. About need. I'm going to be thinking about that for a long time."</p>`;
+            } else {
+                prose += `
+
+<p>Kyros matches your pace down the steps. "That was intense." A pause. "He wasn't angry when you refused. Did you notice? Like he already knew what you'd say, and he'd calculated for it."</p>
+
+<p>He looks back at the temple. "I don't know if we made the right choice. But at least we made it ourselves."</p>`;
+            }
+        }
+
+        return {
+            prose: prose,
+            choices: [
+                { text: "Return to the city.", next: "A2-HUB" }
+            ]
+        };
+    }
 },
 
 "A2-TEMPLE-RETURN": {
@@ -318,32 +472,82 @@ export const ACT2_TEMPLE_CONTENT = {
     title: "Agreement",
     act: 2,
     thread: "temple",
-    prose: `<p>"Patience is what we have." He inclines his head. "The vaults will be ready. The network has already been informed—I anticipated the possibility."</p>
+    dynamic: true,
+    getProseAndChoices: function() {
+        let prose = `<p>"Patience is what we have." He inclines his head. "The vaults will be ready. The network has already been informed—I anticipated the possibility."</p>
 
 <p>He rises slowly. "You took time to think. That is not weakness. Some decisions should not be made quickly." He moves toward the sanctuary. "The god will receive what you send. And when this is over, the world will know who sheltered it."</p>
 
 <p>The young priest escorts you out. The city spreads below, tense and waiting.</p>
 
-<p>The deal is struck. The temple will help—at its price.</p>`,
-    choices: [
-        { text: "Return to the city.", next: "A2-HUB" }
-    ]
+<p>The deal is struck. The temple will help—at its price.</p>`;
+
+        // Add Kyros processing if he's present
+        if (STATE.kyrosJoined) {
+            if (STATE.kyrosSapphoDefense) {
+                prose += `
+
+<p>On the way down, Kyros is contemplative. "I've been thinking about what he said. About poetry." He touches the scroll case. "Maybe he's right that I need to do more than just carry her. Maybe I need to make people need her."</p>
+
+<p>He looks at you. "If we get through this... I want to teach. Not just scholars. Everyone. Make Sappho matter to a farmer's wife crying in the night." A small smile. "That's what he said, wasn't it? That's utility."</p>`;
+            } else {
+                prose += `
+
+<p>Kyros walks beside you in silence for a while. Then: "Coming back here, accepting his terms—that took something, didn't it? Admitting we need him."</p>
+
+<p>He looks at the city below. "I think that's what he wanted all along. Not just the scrolls or the scholars. He wanted us to come back. To admit the Library can't do this alone."</p>`;
+            }
+        }
+
+        return {
+            prose: prose,
+            choices: [
+                { text: "Return to the city.", next: "A2-HUB" }
+            ]
+        };
+    }
 },
 
 "A2-TEMPLE-FINAL": {
     title: "Final Refusal",
     act: 2,
     thread: "temple",
-    prose: `<p>Khaemwaset inclines his head—not agreement, but acknowledgment.</p>
+    dynamic: true,
+    getProseAndChoices: function() {
+        let prose = `<p>Khaemwaset inclines his head—not agreement, but acknowledgment.</p>
 
 <p>"The price is what it is. I do not haggle." He rises and moves toward the inner temple. "The vaults will be here when the fire comes. If your way fails, some of what you carry may still find its way to us. We have been receiving refugees for a very long time."</p>
 
 <p>He pauses at the doorway. "I hope your way works. I do not think it will. But I have been wrong before."</p>
 
-<p>He disappears into the shadows. The conversation is over.</p>`,
-    choices: [
-        { text: "Return to the city.", next: "A2-HUB" }
-    ]
+<p>He disappears into the shadows. The conversation is over.</p>`;
+
+        // Add Kyros processing if he's present
+        if (STATE.kyrosJoined) {
+            if (STATE.kyrosSapphoDefense) {
+                prose += `
+
+<p>Kyros is quiet on the descent. Finally: "I'm glad we didn't accept. But I keep thinking about what he said." He touches the scroll case at his side. "Need creates copies. Poetry dies because no one needs it."</p>
+
+<p>He looks at you. "What if the way to save Sappho isn't hiding her in a vault? What if it's making sure a hundred people carry her in their hearts? A thousand?" He shakes his head. "I don't know. But I'm going to find out."</p>`;
+            } else {
+                prose += `
+
+<p>Kyros walks beside you in silence. Then: "We came back and still said no. That means something, doesn't it?"</p>
+
+<p>He looks at the city spread below. "He's not wrong about survival. About what lasts. But..." He searches for words. "I don't want to live in his world. Where everything is just transactions and calculated choices."</p>
+
+<p>He straightens. "Maybe we lose. But we lose as ourselves."</p>`;
+            }
+        }
+
+        return {
+            prose: prose,
+            choices: [
+                { text: "Return to the city.", next: "A2-HUB" }
+            ]
+        };
+    }
 }
 
 };
