@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Alexandria Dilemma</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="game-container">
+        <!-- Header -->
+        <header class="game-header">
+            <h1>The Alexandria Dilemma</h1>
+            <div class="status-bar">
+                <span class="status-item">Act <span id="current-act">1</span></span>
+                <span class="status-item" id="thread-status"></span>
+                <span class="status-item">Harbor: <span id="harbor-status">Quiet</span></span>
+            </div>
+        </header>
+
+        <!-- Main Story Container -->
+        <main id="story-container" class="story-container">
+            <!-- Content loaded dynamically -->
+        </main>
+
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <button id="save-btn" class="tool-btn">Save</button>
+            <button id="load-btn" class="tool-btn" disabled>Load</button>
+            <button id="restart-btn" class="tool-btn">Restart</button>
+            <button class="tool-btn debug-toggle">Show Stats</button>
+        </div>
+
+        <!-- Debug/Metrics Panel -->
+        <div id="metrics-panel" class="metrics-panel hidden">
+            <h3>Game Metrics</h3>
+            <div class="metric-row">
+                <span class="metric-label">Dispersal:</span>
+                <span id="metric-dispersal" class="metric-value">0</span>
+            </div>
+            <div class="metric-row">
+                <span class="metric-label">Defense:</span>
+                <span id="metric-defense" class="metric-value">0</span>
+            </div>
+            <div class="metric-row">
+                <span class="metric-label">Intel:</span>
+                <span id="metric-intel" class="metric-value">0</span>
+            </div>
+            <div class="metric-row">
+                <span class="metric-label">Alliances:</span>
+                <span id="metric-alliances" class="metric-value">None</span>
+            </div>
+        </div>
+
+        <!-- Save Notification -->
+        <div id="save-notification" class="save-notification"></div>
+    </div>
+
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
